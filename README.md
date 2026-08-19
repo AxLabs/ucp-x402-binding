@@ -47,7 +47,7 @@ examples/
 - No facilitator discovery, ranking, or advertisement.
 - No refunds, mandates, or dispute resolution (Layer 4).
 - No changes to UCP core schemas. Everything rides on the existing `payment_handlers` and extension mechanisms.
-- No new cryptography. Reuses x402 schemes (EIP-3009/Permit2) and the offer-receipt extension as specified.
+- No new cryptography. Reuses x402 payment schemes (open registry: `exact`, `upto`, `batch-settlement` today) and the offer-receipt extension as specified.
 
 ## License
 

@@ -31,17 +31,19 @@ The four base fields (`id`, `version`, `spec`, `schema`) are exactly what UCP de
 | `version` | yes | string | Handler spec version, semver |
 | `spec` | yes | URL | Human-readable spec document |
 | `schema` | yes | JSON Schema URL | Machine-readable schema for the extended fields |
-| `x402.networks` | yes | array of CAIP-2 strings | Networks the merchant accepts for settlement, e.g. `["eip155:8453", "eip155:47763"]` |
-| `x402.assets` | yes | array of objects | Settlement assets, e.g. `[{network: "eip155:8453", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", decimals: 6, symbol: "USDC"}]` |
+| `x402.networks` | yes | array of CAIP-2 chain ids | Networks the merchant accepts for settlement. Any namespace allowed (`eip155:8453`, `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`, `bip122:...`); support for a namespace is between merchant and facilitator |
+| `x402.assets` | yes | array of objects | Settlement assets, each `{network, asset, decimals, symbol?}`. The `asset` identifier is chain-specific: EVM = `0x`+40 hex, SVM = base58 mint pubkey, others = the notation defined by the x402 scheme binding for that network. Schema enforces the shape per-asset via conditional rules |
 | `x402.maxAmount` | no | string (base units) | Ceiling for a single payment, base units. Lets agents avoid wasting a signature on out-of-range quotes. |
 | `x402.quoteWindow` | no | integer seconds | How long a checkout total is locked once quoted (default 600) |
-| `x402.schemes` | no | array | Accepted x402 schemes in preference order, e.g. `["exact", "permit2"]` |
+| `x402.schemes` | no | array of open strings | Accepted x402 payment schemes in preference order. Open registry: today `exact`, `upto`, `batch-settlement`; new schemes land in x402 over time. Consumers MUST ignore unrecognized ids. Not an enum: closing it would break forward compatibility |
 
 ### Design rationale
 
 **No facilitator URL. Ever.** The facilitator is merchant-side configuration. The agent never learns which facilitator sits behind the merchant, and the binding works identically with Ax402, CDP, Prism, or any compliant facilitator. This is rule #1 and non-negotiable.
 
-**Networks before assets.** An agent with a wallet on Base answers the network question first; asset selection comes second. CAIP-2 format matches x402 v2 (`eip155:<chain-id>`).
+**Networks before assets.** An agent with a wallet on Base answers the network question first; asset selection comes second. Network ids are full CAIP-2 (`namespace:reference`), not just `eip155:<chain-id>`: the binding is chain-agnostic by design, and any namespace the merchant's facilitator supports is legal. Which namespaces are actually supported is merchant + facilitator concern, invisible to the agent in discovery.
+
+**Asset identifiers are chain-native.** EVM assets are `0x`+40 hex contract addresses; Solana assets are base58 mint pubkeys; other chains use whatever notation their x402 scheme binding defines. The JSON Schema enforces the shape per-asset with conditional (`if/then`) rules keyed on the CAIP-2 namespace, and is deliberately lenient for namespaces it does not know: unknown chains pass shape-validation and are governed by their scheme binding. The rules are also versioned: when x402 adds a network binding, the schema grows a matching conditional rule.
 
 **Amounts in base units, always.** `"135500000"` = 135.50 USD in 6-decimal USDC. Never decimals. Matches x402 core.
 
@@ -58,3 +60,5 @@ See the JSON Schema in this repo. It validates the four UCP base fields plus the
 1. Handler id: `org.x402.crypto` vs `org.x402.payments` vs plain `org.x402`. Leaning `org.x402.crypto` for clarity that this is the crypto-rail handler, leaving room for future stablecoin-specific or chain-specific handlers.
 2. Should `assets` entries carry a `verified` flag (issuer allow-list reference)? Deferred to working-group discussion.
 3. Single `maxAmount` vs per-asset ceilings. Leaning per-asset in v2, single in v1 for simplicity.
+4. Conditional asset-shape rules: the schema currently knows `eip155` (0x+40 hex) and `solana` (base58 32-44). Each new x402 network binding should contribute its rule when adopted. Question for the working group: maintain the registry in the schema vs a separate per-network schema registry the handler schema references.
+5. `bip122` assets: Bitcoin's native asset has no contract address. Whether `asset` is the genesis hash, empty, or omitted for native assets needs a decision if/when an x402 bip122 scheme binding exists.

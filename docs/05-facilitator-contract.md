@@ -12,7 +12,7 @@ This is also the commercial thesis: a neutral spec expands the market for every 
 
 To serve a merchant exposing the `org.x402` handler, a facilitator MUST:
 
-1. **Verify** x402 payments per the x402 spec: EIP-3009 `transferWithAuthorization` (exact scheme) or Permit2 signature checks; amount, payTo, validity window, nonce.
+1. **Verify** x402 payments per the x402 spec for the scheme and network in the challenge: e.g. for the `exact` scheme on EVM, EIP-3009 `transferWithAuthorization` or Permit2 `permitWitnessTransferFrom` (the `assetTransferMethod` inside the exact scheme); for `exact` on Solana, `TransferChecked` for SPL tokens. Verify amount, payTo, validity window, nonce per the scheme's critical validation requirements.
 2. **Settle** on-chain to the merchant's `payTo` on every network the handler advertises.
 3. **Honor the payment-identifier as idempotency key.** Same identifier + same signature = one settlement, ever. Duplicate submissions return the original settlement result (same tx hash), not an error and not a second transfer.
 4. **Return the signed receipt** (offer-receipt extension) in the settlement response, signed by the `payTo` key (or the merchant's designated signer).

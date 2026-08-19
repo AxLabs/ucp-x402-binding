@@ -48,7 +48,7 @@ Key architectural validation: their facilitator-isolation design (agent sees han
 | v2 HTTP: 402 + `PAYMENT-REQUIRED` header (base64 `PaymentRequired`); payment in `PAYMENT-SIGNATURE`; settlement in `PAYMENT-RESPONSE`; CAIP-2 networks | coinbase/x402 `specs/` |
 | v1 HTTP: 402 + `PaymentRequirementsResponse` body with `accepts[]`; `X-PAYMENT` / `X-PAYMENT-RESPONSE` headers | same |
 | Amounts: integer base units as strings, never decimals | same |
-| EVM exact scheme: EIP-3009 `transferWithAuthorization` (recommended) or Permit2 | same |
+| Schemes: open, extensible registry. Today: `exact` (per-network bindings: evm, svm, algo, aptos, hedera, keeta, stellar, sui), `upto` (usage-based), `batch-settlement`. On EVM `exact`, `assetTransferMethod` is `eip3009` (preferred) or `permit2` (universal fallback) | same |
 | offer-receipt extension: signed offer `{version, resourceUrl, scheme, network, asset, payTo, amount, validUntil?}` + signed receipt `{version, network, resourceUrl, payer, issuedAt, transaction?}`, EIP-712 chainId=1 or JWS | coinbase/x402 extension spec |
 | payment-identifier extension: idempotency key 16-128 chars, UUID-v4-with-prefix recommended | coinbase/x402 extension spec |
 | x402-foundation/x402 (6.5k stars): where issues and spec discussions live | github.com/x402-foundation/x402 |
