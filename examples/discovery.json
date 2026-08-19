@@ -1,0 +1,49 @@
+{
+  "ucp": {
+    "services": ["https://shop.example"],
+    "capabilities": {
+      "carts": { "spec": "https://ucp.dev/specifications/cart/latest" },
+      "checkout": { "spec": "https://ucp.dev/specifications/checkout/latest" },
+      "orders": { "spec": "https://ucp.dev/specifications/order/latest" }
+    },
+    "payment_handlers": {
+      "org.x402.crypto": {
+        "id": "org.x402.crypto",
+        "version": "1.0",
+        "spec": "https://github.com/AxLabs/ucp-x402-binding",
+        "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
+        "x402": {
+          "networks": ["eip155:8453", "eip155:47763", "eip155:84532"],
+          "assets": [
+            {
+              "network": "eip155:8453",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "decimals": 6,
+              "symbol": "USDC"
+            },
+            {
+              "network": "eip155:47763",
+              "asset": "0x4200000000000000000000000000000000000023",
+              "decimals": 6,
+              "symbol": "USDC"
+            }
+          ],
+          "maxAmount": "10000000000",
+          "quoteWindow": 600,
+          "schemes": ["exact"]
+        }
+      }
+    },
+    "map_order": "https://shop.example/.well-known/ucp/order"
+  },
+  "keys": [
+    {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "...",
+      "y": "...",
+      "use": "sig",
+      "alg": "ES256"
+    }
+  ]
+}
