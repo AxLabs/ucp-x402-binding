@@ -8,7 +8,8 @@
       "org.x402.crypto": [
         {
           "id": "org.x402.crypto",
-          "version": "1.0"
+          "version": "1.0",
+          "available_instruments": [{ "type": "x402" }]
         }
       ]
     }
@@ -52,18 +53,26 @@
     }
   ],
   "payment": {
-    "x402": {
-      "network": "eip155:8453",
-      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000",
-      "receipt": {
-        "version": "1",
-        "network": "eip155:8453",
-        "resourceUrl": "https://shop.example/checkout-sessions/chk_123",
-        "payer": "0xagent00000000000000000000000000000000000",
-        "issuedAt": "2026-08-20T12:05:00Z",
-        "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000"
+    "instruments": [
+      {
+        "id": "instr_x402_1",
+        "handler_id": "org.x402.crypto",
+        "type": "x402",
+        "selected": true,
+        "display": {
+          "network": "eip155:8453",
+          "asset": "USDC",
+          "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000"
+        },
+        "x402_receipt": {
+          "version": "1",
+          "network": "eip155:8453",
+          "resourceUrl": "https://shop.example/checkout-sessions/chk_123",
+          "payer": "0xagent00000000000000000000000000000000000",
+          "issuedAt": "2026-08-20T12:05:00Z",
+          "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000"
+        }
       }
-    }
+    ]
   }
 }

@@ -97,12 +97,33 @@ Key points:
 
 ## 3. The payment retry
 
+The retry carries both the UCP payment selection and the x402 signature. The UCP body selects the instrument; the header carries the x402 payment:
+
 ```
 POST /checkout-sessions/chk_123/complete HTTP/1.1
 Host: shop.example
 UCP-Agent: profile="https://agent.example/profile"
+Content-Type: application/json
 PAYMENT-SIGNATURE: <base64url Payment payload>
+
+{
+  "payment": {
+    "instruments": [
+      {
+        "id": "instr_x402_1",
+        "handler_id": "org.x402.crypto",
+        "type": "x402",
+        "selected": true
+      }
+    ]
+  }
+}
 ```
+
+Notes on the two payment structures in UCP (they serve different purposes, both are standard):
+
+- `ucp.payment_handlers` (response envelope) is the **runtime handler configuration**: what the merchant/platform can accept for THIS session, resolved per checkout. The response_schema handler variant per the UCP payment-handler guide. For this binding the runtime entry carries `id`, `version`, `available_instruments: [{"type": "x402"}]`.
+- `payment.instruments` (top level, request and response) is the **buyer's selected instrument**: `handler_id` references the runtime handler instance, `type: "x402"`, `selected: true`. Optional on session creation; present at complete to bind the order to the x402 payment.
 
 The merchant (via its facilitator, merchant-side) verifies the signature against the challenge it issued, settles on-chain, and responds:
 

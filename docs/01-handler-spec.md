@@ -32,11 +32,15 @@ The four base fields (`id`, `version`, `spec`, `schema`) are exactly what UCP de
 | `spec` | yes | URL | Human-readable spec document |
 | `schema` | yes | JSON Schema URL | Machine-readable schema for the extended fields |
 | `x402.networks` | yes | array of CAIP-2 chain ids | Networks the merchant accepts for settlement. Any namespace allowed (`eip155:8453`, `neo:860833102`, `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`, `bip122:...`); support for a namespace is between merchant and facilitator |
-| `x402.assets` | yes | array of objects | Settlement assets, each `{network, asset, decimals, symbol?}`. The `asset` identifier is chain-specific: EVM and Neo N3 contract addresses are `0x`+40 hex, Solana token mints are base58 pubkeys, other chains define their own notation. The shape is governed by per-network schemas (see `networkSchemas`), not hardcoded in the core schema |
-| `x402.maxAmount` | no | string (base units) | Ceiling for a single payment, base units. Lets agents avoid wasting a signature on out-of-range quotes. |
-| `x402.quoteWindow` | no | integer seconds | How long a checkout total is locked once quoted (default 600) |
+| `x402.assets` | yes | array of objects | Settlement assets, each `{network, asset, decimals, symbol?}`. The `asset` identifier is chain-specific: EVM and Neo N3 contract addresses are `0x`+40 hex, Solana token mints are base58 pubkeys, other chains define their own notation. The shape is governed by per-network schemas (see `network_schemas`), not hardcoded in the core schema |
+| `x402.max_amount` | no | string (base units) | Ceiling for a single payment, base units. Lets agents avoid wasting a signature on out-of-range quotes. |
+| `x402.quote_window` | no | integer seconds | How long a checkout total is locked once quoted (default 600) |
 | `x402.schemes` | no | array of open strings | Accepted x402 payment schemes in preference order. Open registry: today `exact`, `upto`, `batch-settlement`; new schemes land in x402 over time. Consumers MUST ignore unrecognized ids. Not an enum: closing it would break forward compatibility |
-| `x402.networkSchemas` | no | object (namespace -> schema URL) | Per-network asset schema registry. Maps each CAIP-2 namespace present in the handler to the JSON Schema that defines its asset identifier shape. Reference schemas ship in this repo under `schema/networks/`; chain communities can author and host their own. Keeps the core schema chain-agnostic and moves asset-shape governance to the chains themselves |
+| `x402.network_schemas` | no | object (namespace -> schema URL) | Per-network asset schema registry. Maps each CAIP-2 namespace present in the handler to the JSON Schema that defines its asset identifier shape. Reference schemas ship in this repo under `schema/networks/`; chain communities can author and host their own. Keeps the core schema chain-agnostic and moves asset-shape governance to the chains themselves |
+
+### Naming convention
+
+UCP field names are snake_case throughout (`payment_handlers`, `available_instruments`, `handler_id`, `line_items`). Every field this binding defines follows the same convention: `max_amount`, `quote_window`, `network_schemas`. The one deliberate exception: camelCase appears **inside verbatim x402 wire payloads** (`PaymentRequired` with `maxAmountRequired`, `payTo`, `validUntil`, signed offers and receipts). Those are x402 objects quoted as-is across the wire, not UCP fields, and re-casing them would break x402 signature payloads.
 
 ### Design rationale
 

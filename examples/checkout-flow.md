@@ -30,10 +30,10 @@ Host: shop.example
 UCP-Agent: profile="https://agent.example/profile"
 Content-Type: application/json
 
-{ "cart_id": "cart_789", "payment": { "handlers": ["org.x402.crypto"] } }
+{ "cart_id": "cart_789" }
 ```
 
-Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`.
+Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`. The `ucp.payment_handlers` envelope carries the runtime `org.x402.crypto` entry with `available_instruments: [{"type": "x402"}]` for this session. (The `payment` object is optional at creation per the UCP checkout spec; the agent selects the instrument at complete.)
 
 ## 3. Complete without payment: the 402
 
@@ -67,7 +67,21 @@ Then signs EIP-3009 `transferWithAuthorization` for `135500000` USDC to `payTo`.
 POST /checkout-sessions/chk_123/complete HTTP/1.1
 Host: shop.example
 UCP-Agent: profile="https://agent.example/profile"
+Content-Type: application/json
 PAYMENT-SIGNATURE: eyJzY2...In19
+
+{
+  "payment": {
+    "instruments": [
+      {
+        "id": "instr_x402_1",
+        "handler_id": "org.x402.crypto",
+        "type": "x402",
+        "selected": true
+      }
+    ]
+  }
+}
 ```
 
 ```
@@ -75,7 +89,7 @@ HTTP/1.1 200 OK
 PAYMENT-RESPONSE: eyJzdW...uLn0
 ```
 
-Response: [`res/checkout-complete-success.json`](res/checkout-complete-success.json). Session `completed`, order id `ord_99887766`, payment block carries the network, asset, tx hash, and the signed receipt bound to `https://shop.example/checkout-sessions/chk_123`. Order webhooks fire.
+Response: [`res/checkout-complete-success.json`](res/checkout-complete-success.json). Session `completed`, order id `ord_99887766`. The `payment.instruments` entry carries the settlement facts (network, asset, tx hash) in `display`, and the signed x402 receipt in `x402_receipt` bound to `https://shop.example/checkout-sessions/chk_123`. Order webhooks fire.
 
 ## 6. Failure path (expired offer)
 

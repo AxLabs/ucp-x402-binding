@@ -2,9 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
   "title": "org.x402 UCP Payment Handler Entry",
-  "description": "Vendor-neutral x402 payment handler entry for UCP discovery. Facilitator detail is deliberately absent: the facilitator is merchant-side configuration. Network identifiers are CAIP-2 chain ids (namespace:reference). Asset identifiers are chain-specific: their shape is governed by per-network schemas (see x402.networkSchemas), not by this core schema. Each CAIP-2 namespace community maintains its own versioned asset schema; validators apply the schema registered for the namespace of each asset and fall back to a lenient default for unregistered namespaces.",
+  "description": "Vendor-neutral x402 payment handler entry for UCP discovery. Facilitator detail is deliberately absent: the facilitator is merchant-side configuration. Network identifiers are CAIP-2 chain ids (namespace:reference). Asset identifiers are chain-specific: their shape is governed by per-network schemas (see x402.network_schemas), not by this core schema. Each CAIP-2 namespace community maintains its own versioned asset schema; validators apply the schema registered for the namespace of each asset and fall back to a lenient default for unregistered namespaces. Field naming follows UCP's snake_case convention; camelCase is reserved for verbatim x402 wire payloads (PaymentRequired, signed offers, receipts) which are quoted as-is.",
   "type": "object",
-  "required": ["id", "version", "spec", "schema", "x402"],
+  "required": [
+    "id",
+    "version",
+    "spec",
+    "schema",
+    "x402"
+  ],
   "properties": {
     "id": {
       "const": "org.x402.crypto"
@@ -12,7 +18,9 @@
     "version": {
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
-      "examples": ["1.0"]
+      "examples": [
+        "1.0"
+      ]
     },
     "spec": {
       "type": "string",
@@ -22,9 +30,34 @@
       "type": "string",
       "format": "uri"
     },
+    "available_instruments": {
+      "type": "array",
+      "description": "UCP-standard PaymentHandler field. Optional; narrows the instrument types this handler supports. For this binding there is exactly one instrument type: the on-chain x402 payment itself.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "x402",
+            "description": "The x402 payment instrument type."
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "config": {
+      "type": "object",
+      "description": "UCP-standard PaymentHandler field. Optional handler-specific configuration. For this binding, config stays merchant-side; it MUST NOT contain facilitator endpoints or anything an agent would need to construct a payment.",
+      "additionalProperties": true
+    },
     "x402": {
       "type": "object",
-      "required": ["networks", "assets"],
+      "required": [
+        "networks",
+        "assets"
+      ],
       "properties": {
         "networks": {
           "type": "array",
@@ -41,7 +74,11 @@
           "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["network", "asset", "decimals"],
+            "required": [
+              "network",
+              "asset",
+              "decimals"
+            ],
             "properties": {
               "network": {
                 "type": "string",
@@ -52,7 +89,7 @@
                 "type": "string",
                 "minLength": 2,
                 "maxLength": 128,
-                "description": "Chain-specific asset identifier in the notation native to the asset's network, as defined by the per-network schema registered in x402.networkSchemas (e.g. EVM and Neo N3 contract addresses are 0x + 40 hex; Solana token mints are base58 pubkeys; a network may define its native asset as empty or omitted). For namespaces with no registered schema, this is an opaque string and the shape is governed by the corresponding x402 scheme binding."
+                "description": "Chain-specific asset identifier in the notation native to the asset's network, as defined by the per-network schema registered in x402.network_schemas (e.g. EVM and Neo N3 contract addresses are 0x + 40 hex; Solana token mints are base58 pubkeys; a network may define its native asset as empty or omitted). For namespaces with no registered schema, this is an opaque string and the shape is governed by the corresponding x402 scheme binding."
               },
               "decimals": {
                 "type": "integer",
@@ -68,12 +105,12 @@
             "additionalProperties": false
           }
         },
-        "maxAmount": {
+        "max_amount": {
           "type": "string",
           "pattern": "^[0-9]+$",
           "description": "Ceiling for a single payment, integer base units (no decimals)."
         },
-        "quoteWindow": {
+        "quote_window": {
           "type": "integer",
           "minimum": 60,
           "description": "Seconds a quoted total stays locked once issued. Default 600."
@@ -90,9 +127,9 @@
             "description": "x402 payment scheme identifier. The scheme registry is open and extensible (see coinbase/x402 specs/schemes/). Known today: exact, upto, batch-settlement. New schemes may be added by the x402 standard over time; consumers MUST ignore unrecognized scheme ids. Ordered by merchant preference."
           }
         },
-        "networkSchemas": {
+        "network_schemas": {
           "type": "object",
-          "description": "Per-network asset schema registry. Maps a CAIP-2 namespace (the segment before the colon, e.g. eip155, neo, solana, bip122) to the URL of a JSON Schema that defines the asset identifier shape for that namespace. Reference schemas for known namespaces ship in this repo under schema/networks/<namespace>.schema.json. The registry is open: a chain community can author and host its own schema and the handler references it here. Validators SHOULD fetch and apply the registered schema for each namespace present in x402.assets; for namespaces with no entry, validators fall back to the lenient default (asset is an opaque string, 2-128 chars).",
+          "description": "Per-network asset schema registry. Maps a CAIP-2 namespace (the segment before the colon, e.g. eip155, neo, solana, bip122) to the URL of a JSON Schema that defines the asset identifier shape for that namespace. Reference schemas for known namespaces ship in this repo under schema/networks/<namespace>.schema.json. The registry is open: a chain community can author and host its own schema and the handler references it here. Validators SHOULD fetch and apply the registered schema for each namespace present in x402.assets; for namespaces with no entry, validators fall back to the lenient default (asset is an opaque string, 2-128 chars). Field names in this binding follow UCP's snake_case convention; camelCase appears only inside verbatim x402 wire payloads (PaymentRequired, offers, receipts).",
           "additionalProperties": {
             "type": "string",
             "format": "uri",

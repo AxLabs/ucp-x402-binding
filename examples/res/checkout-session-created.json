@@ -8,7 +8,8 @@
       "org.x402.crypto": [
         {
           "id": "org.x402.crypto",
-          "version": "1.0"
+          "version": "1.0",
+          "available_instruments": [{ "type": "x402" }]
         }
       ]
     }
@@ -46,8 +47,5 @@
       "type": "terms_of_service",
       "url": "https://shop.example/terms"
     }
-  ],
-  "payment": {
-    "handlers": ["org.x402.crypto"]
-  }
+  ]
 }

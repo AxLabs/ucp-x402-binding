@@ -1,10 +1,18 @@
 {
   "ucp": {
-    "services": ["https://shop.example"],
+    "services": [
+      "https://shop.example"
+    ],
     "capabilities": {
-      "carts": { "spec": "https://ucp.dev/specifications/cart/latest" },
-      "checkout": { "spec": "https://ucp.dev/specifications/checkout/latest" },
-      "orders": { "spec": "https://ucp.dev/specifications/order/latest" }
+      "carts": {
+        "spec": "https://ucp.dev/specifications/cart/latest"
+      },
+      "checkout": {
+        "spec": "https://ucp.dev/specifications/checkout/latest"
+      },
+      "orders": {
+        "spec": "https://ucp.dev/specifications/order/latest"
+      }
     },
     "payment_handlers": {
       "org.x402.crypto": {
@@ -13,7 +21,12 @@
         "spec": "https://github.com/AxLabs/ucp-x402-binding",
         "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
         "x402": {
-          "networks": ["eip155:8453", "eip155:47763", "eip155:84532", "neo:860833102"],
+          "networks": [
+            "eip155:8453",
+            "eip155:47763",
+            "eip155:84532",
+            "neo:860833102"
+          ],
           "assets": [
             {
               "network": "eip155:8453",
@@ -34,15 +47,23 @@
               "symbol": "bNEO"
             }
           ],
-          "maxAmount": "10000000000",
-          "quoteWindow": 600,
-          "schemes": ["exact", "upto"],
-          "networkSchemas": {
+          "max_amount": "10000000000",
+          "quote_window": 600,
+          "schemes": [
+            "exact",
+            "upto"
+          ],
+          "network_schemas": {
             "eip155": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/eip155.schema.json",
             "neo": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/neo.schema.json",
             "solana": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/solana.schema.json"
           }
-        }
+        },
+        "available_instruments": [
+          {
+            "type": "x402"
+          }
+        ]
       }
     },
     "map_order": "https://shop.example/.well-known/ucp/order"
