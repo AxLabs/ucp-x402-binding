@@ -2,6 +2,8 @@
 
 Illustrative trace using the shapes from `02-wire-binding.md`. Addresses are placeholders. Amount: 135.50 USD total, USDC on Base, 6 decimals.
 
+Requests are shown inline. Responses live in separate JSON files under [`res/`](res/) and are linked at each step.
+
 ## 1. Discovery
 
 ```
@@ -9,7 +11,7 @@ GET /.well-known/ucp HTTP/1.1
 Host: shop.example
 ```
 
-Response: see `discovery.json`. The agent sees `org.x402.crypto`, checks `x402.networks` against its wallet's chain, checks `x402.assets` for something it holds. Decision: can pay here.
+Response: [`discovery.json`](discovery.json). The agent sees `org.x402.crypto`, checks `x402.networks` against its wallet's chain, checks `x402.assets` for something it holds (validating asset shapes against `x402.networkSchemas`). Decision: can pay here.
 
 ## 2. Cart and session
 
@@ -31,7 +33,7 @@ Content-Type: application/json
 { "cart_id": "cart_789", "payment": { "handlers": ["org.x402.crypto"] } }
 ```
 
-Response (abbreviated): session `chk_123`, total `135.50 USD`, state `ready_for_complete`.
+Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`.
 
 ## 3. Complete without payment: the 402
 
@@ -43,10 +45,10 @@ UCP-Agent: profile="https://agent.example/profile"
 
 ```
 HTTP/1.1 402 Payment Required
-PAYMENT-REQUIRED: eyJ2ZXJzaW9uIjoiMiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MyIsLi4ufQ
+PAYMENT-REQUIRED: eyJ2ZX...4ufQ
 ```
 
-Decoded `PaymentRequired` (see `02-wire-binding.md` section 2 for the full payload): amount `135500000`, payTo `0xmerchant...`, resource `https://shop.example/checkout-sessions/chk_123`, extensions carry the signed offer (price lock, `validUntil` +600s) and the payment-identifier `ucp:chk_123`.
+Decoded `PaymentRequired` payload: [`res/payment-required.json`](res/payment-required.json). Amount `135500000` base units, `payTo` `0xmerchant...`, `resource` bound to this session's URL, extensions carry the signed offer (price lock, `validUntil` +600s) and the payment-identifier `ucp:chk_123`.
 
 ## 4. Agent-side verification, then signature
 
@@ -65,37 +67,21 @@ Then signs EIP-3009 `transferWithAuthorization` for `135500000` USDC to `payTo`.
 POST /checkout-sessions/chk_123/complete HTTP/1.1
 Host: shop.example
 UCP-Agent: profile="https://agent.example/profile"
-PAYMENT-SIGNATURE: eyJzY2hlbWUiOiJleGFjdCIsInBheWxvYWQiOnsiLi4uIn19
+PAYMENT-SIGNATURE: eyJzY2...In19
 ```
 
 ```
 HTTP/1.1 200 OK
-PAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLC4uLn0
+PAYMENT-RESPONSE: eyJzdW...uLn0
 ```
 
-Decoded `SettlementResponse`: `success: true`, tx hash, signed receipt bound to `https://shop.example/checkout-sessions/chk_123`. UCP session state: `completed`. Order webhooks fire.
+Response: [`res/checkout-complete-success.json`](res/checkout-complete-success.json). Session `completed`, order id `ord_99887766`, payment block carries the network, asset, tx hash, and the signed receipt bound to `https://shop.example/checkout-sessions/chk_123`. Order webhooks fire.
 
 ## 6. Failure path (expired offer)
 
 Agent was slow, offer expired, merchant rejects the signature:
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "ucp": {
-    "status": "error",
-    "messages": [
-      {
-        "code": "payment_failed",
-        "severity": "recoverable",
-        "message": "Payment signature rejected: offer expired"
-      }
-    ]
-  }
-}
-```
+Response: [`res/checkout-complete-payment-expired.json`](res/checkout-complete-payment-expired.json).
 
 Session returns to `ready_for_complete`. Agent re-attempts `complete`, gets a fresh 402 with a new signed offer, re-verifies, re-signs. Same session id, same payment-identifier, new signature. No double-settle risk: the identifier is idempotent at the facilitator.
 

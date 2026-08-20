@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
   "title": "org.x402 UCP Payment Handler Entry",
-  "description": "Vendor-neutral x402 payment handler entry for UCP discovery. Facilitator detail is deliberately absent: the facilitator is merchant-side configuration. Network identifiers are CAIP-2 chain ids (namespace:reference, e.g. eip155:8453, solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp, bip122:000000000019d6689c085ae165831e93). Asset identifiers are chain-specific (EVM: 0x-address; SVM: base58 mint pubkey; etc.) and are constrained by the conditional rules below.",
+  "description": "Vendor-neutral x402 payment handler entry for UCP discovery. Facilitator detail is deliberately absent: the facilitator is merchant-side configuration. Network identifiers are CAIP-2 chain ids (namespace:reference). Asset identifiers are chain-specific: their shape is governed by per-network schemas (see x402.networkSchemas), not by this core schema. Each CAIP-2 namespace community maintains its own versioned asset schema; validators apply the schema registered for the namespace of each asset and fall back to a lenient default for unregistered namespaces.",
   "type": "object",
   "required": ["id", "version", "spec", "schema", "x402"],
   "properties": {
@@ -33,7 +33,7 @@
           "items": {
             "type": "string",
             "pattern": "^[a-z0-9-]{3,8}:[-_a-zA-Z0-9]{1,32}$",
-            "description": "CAIP-2 chain id: namespace:reference per CAIP-2 grammar. Examples: eip155:8453 (Base), eip155:47763 (Neo X), eip155:84532 (Base Sepolia), solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp (Solana mainnet), bip122:000000000019d6689c085ae165831e93 (Bitcoin). Non-blockchain networks may follow CAIP-2-style ids (e.g. ach:us, sepa:eu) per x402 v2. The binding does not constrain which namespaces a merchant may advertise; support for a namespace is between the merchant and its facilitator."
+            "description": "CAIP-2 chain id: namespace:reference per CAIP-2 grammar. Examples: eip155:8453 (Base), eip155:47763 (Neo X), eip155:84532 (Base Sepolia), neo:860833102 (Neo N3 MainNet), solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp (Solana mainnet), bip122:000000000019d6689c085ae165831e93 (Bitcoin). Non-blockchain networks may follow CAIP-2-style ids (e.g. ach:us, sepa:eu) per x402 v2. The binding does not constrain which namespaces a merchant may advertise; support for a namespace is between the merchant and its facilitator."
           }
         },
         "assets": {
@@ -52,7 +52,7 @@
                 "type": "string",
                 "minLength": 2,
                 "maxLength": 128,
-                "description": "Chain-specific asset identifier in the notation native to the asset's network. EVM: contract address (0x + 40 hex). SVM: base58 token mint public key. Others: the identifier defined by the corresponding x402 scheme binding for that network. Shape is validated conditionally on the asset's own network namespace, see the allOf rules inside this item schema."
+                "description": "Chain-specific asset identifier in the notation native to the asset's network, as defined by the per-network schema registered in x402.networkSchemas (e.g. EVM and Neo N3 contract addresses are 0x + 40 hex; Solana token mints are base58 pubkeys; a network may define its native asset as empty or omitted). For namespaces with no registered schema, this is an opaque string and the shape is governed by the corresponding x402 scheme binding."
               },
               "decimals": {
                 "type": "integer",
@@ -65,37 +65,7 @@
                 "maxLength": 11
               }
             },
-            "additionalProperties": false,
-            "allOf": [
-              {
-                "$comment": "EVM assets: 0x + 40 hex",
-                "if": {
-                  "properties": {
-                    "network": { "pattern": "^eip155:" }
-                  },
-                  "required": ["network"]
-                },
-                "then": {
-                  "properties": {
-                    "asset": { "pattern": "^0x[a-fA-F0-9]{40}$" }
-                  }
-                }
-              },
-              {
-                "$comment": "SVM assets: base58, 32-44 chars (token mint pubkey)",
-                "if": {
-                  "properties": {
-                    "network": { "pattern": "^solana:" }
-                  },
-                  "required": ["network"]
-                },
-                "then": {
-                  "properties": {
-                    "asset": { "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$" }
-                  }
-                }
-              }
-            ]
+            "additionalProperties": false
           }
         },
         "maxAmount": {
@@ -118,6 +88,15 @@
             "maxLength": 64,
             "pattern": "^[a-z][a-z0-9-]*$",
             "description": "x402 payment scheme identifier. The scheme registry is open and extensible (see coinbase/x402 specs/schemes/). Known today: exact, upto, batch-settlement. New schemes may be added by the x402 standard over time; consumers MUST ignore unrecognized scheme ids. Ordered by merchant preference."
+          }
+        },
+        "networkSchemas": {
+          "type": "object",
+          "description": "Per-network asset schema registry. Maps a CAIP-2 namespace (the segment before the colon, e.g. eip155, neo, solana, bip122) to the URL of a JSON Schema that defines the asset identifier shape for that namespace. Reference schemas for known namespaces ship in this repo under schema/networks/<namespace>.schema.json. The registry is open: a chain community can author and host its own schema and the handler references it here. Validators SHOULD fetch and apply the registered schema for each namespace present in x402.assets; for namespaces with no entry, validators fall back to the lenient default (asset is an opaque string, 2-128 chars).",
+          "additionalProperties": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the per-network JSON Schema for the namespace given by the property name."
           }
         }
       },

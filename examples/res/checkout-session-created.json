@@ -1,0 +1,53 @@
+{
+  "ucp": {
+    "version": "1.0",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [{ "version": "1.0" }]
+    },
+    "payment_handlers": {
+      "org.x402.crypto": [
+        {
+          "id": "org.x402.crypto",
+          "version": "1.0"
+        }
+      ]
+    }
+  },
+  "id": "chk_123",
+  "status": "ready_for_complete",
+  "currency": "USD",
+  "line_items": [
+    {
+      "id": "li_1",
+      "item": {
+        "id": "prod_451",
+        "title": "USB-C Docking Station",
+        "price": 6775
+      },
+      "quantity": 2,
+      "totals": [
+        { "type": "subtotal", "amount": 13550 },
+        { "type": "total", "amount": 13550 }
+      ]
+    }
+  ],
+  "buyer": {
+    "email": "agent@buyer.example",
+    "first_name": "Buying",
+    "last_name": "Agent"
+  },
+  "totals": [
+    { "type": "subtotal", "amount": 13550 },
+    { "type": "tax", "amount": 0 },
+    { "type": "total", "amount": 13550 }
+  ],
+  "links": [
+    {
+      "type": "terms_of_service",
+      "url": "https://shop.example/terms"
+    }
+  ],
+  "payment": {
+    "handlers": ["org.x402.crypto"]
+  }
+}

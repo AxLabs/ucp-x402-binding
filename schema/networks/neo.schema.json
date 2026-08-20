@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/neo.schema.json",
+  "title": "Neo N3 asset identifiers (neo namespace)",
+  "description": "Asset identifier shape for CAIP-2 neo networks (Neo N3). Fungible assets are NEP-17 contract script hashes in big-endian 0x + 40 hex form (same textual shape as EVM addresses, different semantics). Networks are identified as neo:<network-magic-decimal> per the ChainAgnostic neo CAIP-2 profile; MainNet is neo:860833102, TestNet is neo:860833103 (T3) and neo:12227332 is the Neo X sidechain testnet (which uses its own eip155-style namespace on other registries; Neo X mainnet is eip155:47763).",
+  "type": "string",
+  "pattern": "^0x[a-fA-F0-9]{40}$",
+  "examples": [
+    "0xd2a4cff31913016155e38e474a2c06d08be276cf",
+    "0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/eip155.schema.json",
+  "title": "EVM asset identifiers (eip155 namespace)",
+  "description": "Asset identifier shape for CAIP-2 eip155 networks. Assets are ERC-20 (or ERC-20-compatible) contract addresses: 0x + 40 hexadecimal characters, case-insensitive checksummed form recommended (EIP-55).",
+  "type": "string",
+  "pattern": "^0x[a-fA-F0-9]{40}$",
+  "examples": [
+    "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "0x4200000000000000000000000000000000000023"
+  ]
+}

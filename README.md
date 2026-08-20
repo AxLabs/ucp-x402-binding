@@ -51,7 +51,7 @@ examples/
 
 ## License
 
-TBD - likely Apache-2.0 when made public, to match common standards-repo practice.
+Apache License 2.0. Copyright 2026 AxLabs. See [LICENSE](LICENSE).
 
 ## Contributing
 

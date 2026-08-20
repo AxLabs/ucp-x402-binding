@@ -1,0 +1,69 @@
+{
+  "ucp": {
+    "version": "1.0",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [{ "version": "1.0" }]
+    },
+    "payment_handlers": {
+      "org.x402.crypto": [
+        {
+          "id": "org.x402.crypto",
+          "version": "1.0"
+        }
+      ]
+    }
+  },
+  "id": "chk_123",
+  "status": "completed",
+  "currency": "USD",
+  "order": {
+    "id": "ord_99887766",
+    "permalink_url": "https://shop.example/orders/ord_99887766"
+  },
+  "line_items": [
+    {
+      "id": "li_1",
+      "item": {
+        "id": "prod_451",
+        "title": "USB-C Docking Station",
+        "price": 6775
+      },
+      "quantity": 2,
+      "totals": [
+        { "type": "subtotal", "amount": 13550 },
+        { "type": "total", "amount": 13550 }
+      ]
+    }
+  ],
+  "buyer": {
+    "email": "agent@buyer.example",
+    "first_name": "Buying",
+    "last_name": "Agent"
+  },
+  "totals": [
+    { "type": "subtotal", "amount": 13550 },
+    { "type": "tax", "amount": 0 },
+    { "type": "total", "amount": 13550 }
+  ],
+  "links": [
+    {
+      "type": "terms_of_service",
+      "url": "https://shop.example/terms"
+    }
+  ],
+  "payment": {
+    "x402": {
+      "network": "eip155:8453",
+      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000",
+      "receipt": {
+        "version": "1",
+        "network": "eip155:8453",
+        "resourceUrl": "https://shop.example/checkout-sessions/chk_123",
+        "payer": "0xagent00000000000000000000000000000000000",
+        "issuedAt": "2026-08-20T12:05:00Z",
+        "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  }
+}

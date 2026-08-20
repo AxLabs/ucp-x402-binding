@@ -13,7 +13,7 @@
         "spec": "https://github.com/AxLabs/ucp-x402-binding",
         "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
         "x402": {
-          "networks": ["eip155:8453", "eip155:47763", "eip155:84532"],
+          "networks": ["eip155:8453", "eip155:47763", "eip155:84532", "neo:860833102"],
           "assets": [
             {
               "network": "eip155:8453",
@@ -26,11 +26,22 @@
               "asset": "0x4200000000000000000000000000000000000023",
               "decimals": 6,
               "symbol": "USDC"
+            },
+            {
+              "network": "neo:860833102",
+              "asset": "0xd2a4cff31913016155e38e474a2c06d08be276cf",
+              "decimals": 8,
+              "symbol": "bNEO"
             }
           ],
           "maxAmount": "10000000000",
           "quoteWindow": 600,
-          "schemes": ["exact", "upto"]
+          "schemes": ["exact", "upto"],
+          "networkSchemas": {
+            "eip155": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/eip155.schema.json",
+            "neo": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/neo.schema.json",
+            "solana": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/solana.schema.json"
+          }
         }
       }
     },

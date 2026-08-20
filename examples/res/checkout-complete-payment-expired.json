@@ -1,0 +1,13 @@
+{
+  "ucp": {
+    "version": "1.0",
+    "status": "error",
+    "messages": [
+      {
+        "code": "payment_failed",
+        "severity": "recoverable",
+        "message": "Payment signature rejected: offer expired"
+      }
+    ]
+  }
+}

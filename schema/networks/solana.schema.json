@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/networks/solana.schema.json",
+  "title": "Solana asset identifiers (solana namespace)",
+  "description": "Asset identifier shape for CAIP-2 solana networks. Assets are SPL token mint public keys: base58-encoded ed25519 curve points, 32-44 characters, excluding 0, O, I, and l.",
+  "type": "string",
+  "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
+  "examples": [
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+  ]
+}
