@@ -12,7 +12,7 @@ Binding: **when an agent POSTs `complete` without a valid payment, the merchant 
 Agent                                     Merchant (UCP server)
   |                                            |
   | GET /.well-known/ucp                        |
-  |  (sees org.x402.crypto handler)            |
+  |  (sees org.x402.payment handler)            |
   |<-------------------------------------------|
   |                                            |
   | POST /carts ... (build cart)               |
@@ -111,7 +111,7 @@ PAYMENT-SIGNATURE: <base64url Payment payload>
     "instruments": [
       {
         "id": "instr_x402_1",
-        "handler_id": "org.x402.crypto",
+        "handler_id": "org.x402.payment",
         "type": "x402",
         "selected": true
       }

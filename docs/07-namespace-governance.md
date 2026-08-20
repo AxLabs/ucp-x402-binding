@@ -10,7 +10,7 @@ UCP payment handlers are keyed by reverse-domain namespace (`com.google.pay`, `d
 
 **The x402 Foundation should own `org.x402`.**
 
-- `org.x402.crypto` (this binding) would be the crypto-rail handler.
+- `org.x402.payment` (this binding) would be the crypto-rail handler.
 - The namespace leaves room for future handlers (`org.x402.mcp` variants, scheme-specific handlers) without new namespaces.
 - AxLabs authors the spec and reference implementation, proposes it via the Discovery working group (where we are already active), and donates it. Authorship credit, not ownership.
 
@@ -18,7 +18,7 @@ Precedent: ACP's SEP process shows the pattern that works: an external company (
 
 ## 3. Migration story (why fd.xyz can join later)
 
-`xyz.fd.prism_payment` and `org.x402.crypto` can coexist in the same discovery profile: a merchant running Prism plugins advertises both, agents that understand `org.x402` prefer it. Prism adopting the neutral handler is a config change plus a gateway feature, not a rewrite. That is the point of designing compatible-by-construction.
+`xyz.fd.prism_payment` and `org.x402.payment` can coexist in the same discovery profile: a merchant running Prism plugins advertises both, agents that understand `org.x402` prefer it. Prism adopting the neutral handler is a config change plus a gateway feature, not a rewrite. That is the point of designing compatible-by-construction.
 
 ## 4. Sequence
 

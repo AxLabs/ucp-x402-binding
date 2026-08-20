@@ -11,7 +11,7 @@ GET /.well-known/ucp HTTP/1.1
 Host: shop.example
 ```
 
-Response: [`discovery.json`](discovery.json). The agent sees `org.x402.crypto`, checks `x402.networks` against its wallet's chain, checks `x402.assets` for something it holds (validating asset shapes against `x402.networkSchemas`). Decision: can pay here.
+Response: [`discovery.json`](discovery.json). The agent sees `org.x402.payment`, checks `x402.networks` against its wallet's chain, checks `x402.assets` for something it holds (validating asset shapes against `x402.networkSchemas`). Decision: can pay here.
 
 ## 2. Cart and session
 
@@ -33,7 +33,7 @@ Content-Type: application/json
 { "cart_id": "cart_789" }
 ```
 
-Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`. The `ucp.payment_handlers` envelope carries the runtime `org.x402.crypto` entry with `available_instruments: [{"type": "x402"}]` for this session. (The `payment` object is optional at creation per the UCP checkout spec; the agent selects the instrument at complete.)
+Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`. The `ucp.payment_handlers` envelope carries the runtime `org.x402.payment` entry with `available_instruments: [{"type": "x402"}]` for this session. (The `payment` object is optional at creation per the UCP checkout spec; the agent selects the instrument at complete.)
 
 ## 3. Complete without payment: the 402
 
@@ -75,7 +75,7 @@ PAYMENT-SIGNATURE: eyJzY2...In19
     "instruments": [
       {
         "id": "instr_x402_1",
-        "handler_id": "org.x402.crypto",
+        "handler_id": "org.x402.payment",
         "type": "x402",
         "selected": true
       }

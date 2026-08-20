@@ -1,15 +1,23 @@
 {
   "ucp": {
-    "version": "1.0",
+    "version": "2026-01-11",
     "capabilities": {
-      "dev.ucp.shopping.checkout": [{ "version": "1.0" }]
+      "dev.ucp.shopping.checkout": [
+        {
+          "version": "1.0"
+        }
+      ]
     },
     "payment_handlers": {
-      "org.x402.crypto": [
+      "org.x402.payment": [
         {
-          "id": "org.x402.crypto",
-          "version": "1.0",
-          "available_instruments": [{ "type": "x402" }]
+          "id": "org.x402.payment",
+          "version": "2026-08-20",
+          "available_instruments": [
+            {
+              "type": "x402"
+            }
+          ]
         }
       ]
     }
@@ -27,8 +35,14 @@
       },
       "quantity": 2,
       "totals": [
-        { "type": "subtotal", "amount": 13550 },
-        { "type": "total", "amount": 13550 }
+        {
+          "type": "subtotal",
+          "amount": 13550
+        },
+        {
+          "type": "total",
+          "amount": 13550
+        }
       ]
     }
   ],
@@ -38,9 +52,18 @@
     "last_name": "Agent"
   },
   "totals": [
-    { "type": "subtotal", "amount": 13550 },
-    { "type": "tax", "amount": 0 },
-    { "type": "total", "amount": 13550 }
+    {
+      "type": "subtotal",
+      "amount": 13550
+    },
+    {
+      "type": "tax",
+      "amount": 0
+    },
+    {
+      "type": "total",
+      "amount": 13550
+    }
   ],
   "links": [
     {

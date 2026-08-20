@@ -15,9 +15,9 @@
       }
     },
     "payment_handlers": {
-      "org.x402.crypto": {
-        "id": "org.x402.crypto",
-        "version": "1.0",
+      "org.x402.payment": {
+        "id": "org.x402.payment",
+        "version": "2026-08-20",
         "spec": "https://github.com/AxLabs/ucp-x402-binding",
         "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
         "x402": {
@@ -66,7 +66,8 @@
         ]
       }
     },
-    "map_order": "https://shop.example/.well-known/ucp/order"
+    "map_order": "https://shop.example/.well-known/ucp/order",
+    "version": "2026-01-11"
   },
   "keys": [
     {
