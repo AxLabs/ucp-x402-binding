@@ -15,7 +15,9 @@ The binding must map one onto the other without inventing new UCP states.
 | Event in the x402 flow | UCP session state | Notes |
 |---|---|---|
 | Agent submits `complete` without payment | stays `ready_for_complete` | 402 response, no state change |
-| Agent submits `complete` with PAYMENT-SIGNATURE | `complete_in_progress` | Signature received, verification underway |
+| Agent submits `complete` selecting an instrument (no signature) | stays `ready_for_complete` | New 402 for the selected asset; instrument marked `selected: true` in the session offer |
+| Agent requests a network/asset outside the session offer | stays `ready_for_complete` | Recoverable error `payment_method_not_available` naming the available pairs; never a silent substitute |
+| Agent submits `complete` with PAYMENT-SIGNATURE | `complete_in_progress` | Signature received, verification underway; the instrument selection identifies the paid `accepts[]` entry |
 | Facilitator verifies + settles on-chain | `completed` | Order webhooks fire as usual |
 | Verification fails (bad sig, expired, wrong payTo) | `payment_failed` | Error envelope: `ucp.status: "error"`, severity `recoverable` |
 | Settlement submitted but unconfirmed | `complete_in_progress` (hold) | See timeout policy below |
@@ -28,7 +30,7 @@ The dangerous window is "signature accepted, on-chain settlement not yet final".
 1. **Never auto-fail a session while a settlement is in flight.** A `payment_failed` that later conflicts with an on-chain transfer is the worst outcome (double-pay risk if the agent retries elsewhere).
 2. **Merchant MUST expose the session state on `GET /checkout-sessions/{id}`** so a polling agent can distinguish "processing" from "failed".
 3. **Default hold timeout: `maxTimeoutSeconds` + 120s.** After that, the merchant either marks `payment_failed` (with evidence the settlement cannot land: expired validity, reverted tx) or reconciles manually. Manual reconciliation path is facilitator-specific and out of scope for the binding.
-4. **Idempotent retry:** the payment-identifier extension (session id) guarantees a retried `complete` with the same signature hits the same idempotency key. Duplicate submissions MUST NOT double-settle. This is B4 and it is what makes the whole state machine safe.
+4. **Idempotent retry:** the payment-identifier extension guarantees a retried `complete` with the same signature hits the same idempotency key. In x402 v2 the identifier is **client-supplied**: the merchant advertises `required` in the challenge; the agent generates the id (UUID-v4-with-prefix recommended) and echoes it in `PaymentPayload.extensions`. Duplicate submissions MUST NOT double-settle. This is B4 and it is what makes the whole state machine safe.
 
 ## 4. UCP error envelope
 

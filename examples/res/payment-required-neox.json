@@ -9,8 +9,8 @@
   "accepts": [
     {
       "scheme": "exact",
-      "network": "eip155:8453",
-      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "network": "eip155:47763",
+      "asset": "0x4200000000000000000000000000000000000023",
       "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
       "amount": "135500000",
       "maxTimeoutSeconds": 600,
@@ -31,8 +31,8 @@
               "version": 1,
               "resourceUrl": "https://shop.example/checkout-sessions/chk_123/complete",
               "scheme": "exact",
-              "network": "eip155:8453",
-              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "network": "eip155:47763",
+              "asset": "0x4200000000000000000000000000000000000023",
               "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
               "amount": "135500000",
               "validUntil": 1786233600

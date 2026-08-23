@@ -44,6 +44,8 @@ UCP field names are snake_case throughout (`payment_handlers`, `available_instru
 
 ### Design rationale
 
+**`x402.assets` is capability, not a quote.** Discovery tells the agent which networks/assets the merchant may settle store-wide. It is not a promise that every asset is quotable on every checkout (FX source down, chain paused, per-checkout policy), and it MUST NOT be treated as the 402 catalog. Per-checkout payable assets live in the session offer (`payment.instruments[]` on a ready session) and the challenge (`accepts[]`); see `02-wire-binding.md` for the three-layer containment rules. Do not add per-checkout amounts to discovery. `available_instruments: [{"type": "x402"}]` at discovery is enough; per-asset rows belong on the checkout session, not the handler entry.
+
 **No facilitator URL. Ever.** The facilitator is merchant-side configuration. The agent never learns which facilitator sits behind the merchant, and the binding works identically with Ax402, CDP, Prism, or any compliant facilitator. This is rule #1 and non-negotiable.
 
 **Networks before assets.** An agent with a wallet on Base answers the network question first; asset selection comes second. Network ids are full CAIP-2 (`namespace:reference`), not just `eip155:<chain-id>`: the binding is chain-agnostic by design, and any namespace the merchant's facilitator supports is legal. Which namespaces are actually supported is merchant + facilitator concern, invisible to the agent in discovery.

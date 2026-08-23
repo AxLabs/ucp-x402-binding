@@ -70,5 +70,25 @@
       "type": "terms_of_service",
       "url": "https://shop.example/terms"
     }
-  ]
+  ],
+  "payment": {
+    "instruments": [
+      {
+        "id": "instr_x402_1",
+        "handler_id": "org.x402.payment",
+        "type": "x402",
+        "selected": true,
+        "network": "eip155:8453",
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      },
+      {
+        "id": "instr_x402_2",
+        "handler_id": "org.x402.payment",
+        "type": "x402",
+        "selected": false,
+        "network": "eip155:47763",
+        "asset": "0x4200000000000000000000000000000000000023"
+      }
+    ]
+  }
 }

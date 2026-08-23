@@ -1,0 +1,13 @@
+{
+  "ucp": {
+    "version": "2026-01-11",
+    "status": "error",
+    "messages": [
+      {
+        "code": "payment_method_not_available",
+        "severity": "recoverable",
+        "message": "Requested network/asset is not available for this session. Available pairs: eip155:8453/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (USDC), eip155:47763/0x4200000000000000000000000000000000000023 (USDC)"
+      }
+    ]
+  }
+}
