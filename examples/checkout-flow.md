@@ -55,7 +55,9 @@ HTTP/1.1 402 Payment Required
 PAYMENT-REQUIRED: eyJ4ND...fV19
 ```
 
-Decoded `PaymentRequired` (default asset = Base USDC, the session's `selected` instrument): [`res/payment-required.json`](res/payment-required.json). One `accepts[]` entry for Base USDC, `amount` `135500000` base units, `resource.url` = this session's complete URL, extensions carry the signed offer (price lock) and the payment-identifier advertisement.
+Decoded `PaymentRequired` (default asset = Base USDC, the session's `selected` instrument): [`res/payment-required.json`](res/payment-required.json). One `accepts[]` entry for Base USDC, `amount` `135500000` base units, `resource.url` = this session's complete URL (ideal binding; see the adapter-period variant below), extensions carry the signed offer (price lock) and the payment-identifier advertisement.
+
+Adapter period: while the facilitator verifies gateway-bound resources, the signed challenge MAY carry the gateway URL instead: [`res/payment-required-adapter-ax402.json`](res/payment-required-adapter-ax402.json). In both cases the agent retries the **shop complete URL**. See `02-wire-binding.md` §3.1.
 
 ## 4. Agent-side verification, then signature
 
@@ -144,4 +146,4 @@ Session returns to `ready_for_complete`. Agent re-attempts `complete`, gets a fr
 
 ## 8. MCP transport
 
-Same flow over MCP (`tools/call` with `complete_checkout`): the 402 becomes a structured `payment_required` block in the tool result carrying the same `PaymentRequired` object (with `accepts[]` and extensions), and the retry carries the `PaymentPayload` as a structured argument plus the same instrument selection in the tool arguments. Field-for-field identical to HTTP; only the transport differs.
+Same flow over MCP (`tools/call` with `complete_checkout`): the challenge arrives as `result.structuredContent` (the decoded `PaymentRequired` object; x402-standard location, mirrored at `result._meta["x402/payment-required"]`), and the retry carries the `PaymentPayload` at `params._meta["x402/payment"]` plus the same instrument selection in the tool arguments. Field-for-field identical to HTTP; only the transport differs. Large signatures (Hedera JWS) MAY travel in the body (`payment.payment_signature`) instead of the header.

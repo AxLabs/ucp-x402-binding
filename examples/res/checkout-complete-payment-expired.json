@@ -1,13 +1,16 @@
 {
   "ucp": {
-    "version": "1.0",
-    "status": "error",
-    "messages": [
-      {
-        "code": "payment_failed",
-        "severity": "recoverable",
-        "message": "Payment signature rejected: offer expired"
-      }
-    ]
-  }
+    "version": "2026-04-08",
+    "status": "error"
+  },
+  "messages": [
+    {
+      "type": "error",
+      "code": "payment_failed",
+      "severity": "recoverable",
+      "content": "Payment signature rejected: offer expired"
+    }
+  ],
+  "id": "chk_123",
+  "status": "ready_for_complete"
 }

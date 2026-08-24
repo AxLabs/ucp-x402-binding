@@ -10,18 +10,20 @@ UCP discovery is `GET /.well-known/ucp` returning a profile. The relevant sectio
 {
   "ucp": {
     "payment_handlers": {
-      "org.x402.payment": {
-        "id": "org.x402.payment",
-        "version": "1.0",
-        "spec": "https://github.com/AxLabs/ucp-x402-binding",
-        "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json"
-      }
+      "org.x402.payment": [
+        {
+          "id": "org.x402.payment",
+          "version": "2026-08-20",
+          "spec": "https://github.com/AxLabs/ucp-x402-binding",
+          "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json"
+        }
+      ]
     }
   }
 }
 ```
 
-The four base fields (`id`, `version`, `spec`, `schema`) are exactly what UCP defines today. We add one optional UCP-legal extension object, `x402`, carrying what a buying agent needs to decide whether it can pay here. Nothing else.
+Per UCP 2026-04-08, `payment_handlers` is a **map of arrays**: each key holds an array of handler entries. The four base fields (`id`, `version`, `spec`, `schema`) are exactly what UCP defines. We add one optional UCP-legal extension object, `x402`, carrying what a buying agent needs to decide whether it can pay here. Nothing else.
 
 ## 2. Handler entry fields
 

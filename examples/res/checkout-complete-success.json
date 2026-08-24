@@ -1,6 +1,6 @@
 {
   "ucp": {
-    "version": "2026-01-11",
+    "version": "2026-04-08",
     "capabilities": {
       "dev.ucp.shopping.checkout": [
         {
@@ -90,7 +90,7 @@
         "x402_receipt": {
           "version": "1",
           "network": "eip155:8453",
-          "resourceUrl": "https://shop.example/checkout-sessions/chk_123",
+          "resourceUrl": "https://shop.example/checkout-sessions/chk_123/complete",
           "payer": "0xagent00000000000000000000000000000000000",
           "issuedAt": "2026-08-20T12:05:00Z",
           "transaction": "0xtxhash0000000000000000000000000000000000000000000000000000000000"

@@ -125,7 +125,19 @@ PAYMENT-REQUIRED: <base64 PaymentRequired JSON>
 
 Key points:
 
-- `resource.url` **MUST be the UCP checkout `complete` URL** (the resource the agent is paying for). The agent retries **that** URL with `PAYMENT-SIGNATURE`. Agents MUST NOT treat any facilitator/gateway URL appearing inside signed payloads as the retry URL; if a facilitator's verification pipeline requires its own URL in the signed `resourceUrl` during a migration period, that is adapter debt on the merchant side and is not standardized here.
+- `resource.url` **MUST be the UCP checkout `complete` URL** (the resource the agent is paying for). The agent retries **that** URL with `PAYMENT-SIGNATURE`. Agents MUST NOT treat any facilitator/gateway URL appearing inside signed payloads as the retry URL.
+
+### 3.1 Adapter period (time-boxed, normative)
+
+The ideal above assumes the facilitator can verify payments whose signed `resource` is the shop complete URL. Not every facilitator can today. This subsection documents the transition, so agents behave correctly in both eras and merchants know when the adapter ends.
+
+1. **HTTP 402 location (stable, both eras):** the 402 challenge is always issued on the shop `POST …/checkout-sessions/{id}/complete`. The agent retries **that** URL. The agent MUST NOT treat the MCP JSON-RPC endpoint as the x402 resource.
+2. **Signed `resource` (ideal, end state):** the signed `resourceUrl` inside the offer MUST be the same complete URL. This is the binding's end state and becomes strictly REQUIRED once facilitators can verify shop-bound payments.
+3. **Signed `resource` (adapter, current practice):** during the adapter period, the signed `resourceUrl` inside `PAYMENT-REQUIRED` MAY be the facilitator/gateway URL, because the facilitator's verify pipeline binds to the gateway resource. UCP JSON bodies (discovery, catalog, session, complete responses) MUST NOT expose gateway hosts: the leak is confined to the signed challenge (REST header and/or its MCP mirror). Non-UCP direct-to-facilitator flows are unaffected.
+4. **Agent rule (both eras):** pay the shop complete URL. Do not POST `payment_required.resource.url` unless you are talking to the facilitator directly outside UCP.
+5. **Exit criterion:** the adapter clause ends for a facilitator when it can `/verify` and `/settle` a payment whose `resource` is the shop complete URL. The binding itself does not sunset; merchants SHOULD migrate as their facilitator qualifies.
+
+Containment rules (Section 2) are unaffected: an `accepts[]` entry for a network/asset the resource cannot settle is forbidden in both eras.
 - Each `accepts[]` entry carries `amount` = the session's final total converted to that asset, in base units. Fiat total 135.50 USD -> `135500000` (USDC, 6 decimals). See `03-amount-semantics.md`.
 - The **signed offer** (offer-receipt extension, one per `accepts[]` entry, `acceptIndex` links them) is the price lock: the merchant commits to `amount` + `payTo` + `validUntil` for `resourceUrl` before the agent signs the irreversible scheme authorization. Offers are matched to `accepts[]` by payload fields (`network`, `asset`, `payTo`, `amount`), never by array index alone. Signer authorization per the extension spec (simplest: the `payTo` key signs).
 - `validUntil` is a Unix timestamp (seconds). It SHOULD agree with `maxTimeoutSeconds` and the handler's `quote_window`.
@@ -221,7 +233,25 @@ Skipping steps 3-6 against any multi-asset merchant produces wrong-asset payment
 
 ## 6. MCP transport parity (B3b)
 
-UCP also runs over MCP (tools/call with `create_cart`, `complete_checkout`). x402 has its own MCP transport. Parity rule: **the challenge and payment are structured fields in the tool result, not HTTP headers.** When `complete_checkout` is called without payment, the tool result carries the same `PaymentRequired` object (with `accepts[]` and extensions) as a structured `payment_required` block; the agent re-calls `complete_checkout` with the `PaymentPayload` object as a structured argument, and the instrument selection in the tool arguments mirrors the HTTP body field-for-field. Transport is the only difference.
+UCP also runs over MCP (tools/call with `create_cart`, `complete_checkout`). x402 v2 defines its own MCP transport; this binding adopts its keys verbatim so x402-native tooling interoperates without translation:
+
+**Challenge (no signature), tool result:**
+
+- HTTP stays 200 for JSON-RPC (the 402 semantic lives in the payload, not the transport status).
+- `result.structuredContent` = the decoded `PaymentRequired` object, same object as REST's `PAYMENT-REQUIRED` header (this is the x402-standard, REQUIRED location).
+- `result._meta["x402/payment-required"]` = the same object (MAY, redundant mirror for clients that only scan `_meta`).
+
+**Retry:**
+
+- `params._meta["x402/payment"]` = the `PaymentPayload` object (x402-standard).
+- `params._meta["x402/payment-data"]` = MAY, auxiliary unsigned data.
+- Instrument selection stays in the tool **arguments** (`payment.instruments[]`), field-for-field with the REST body.
+
+**Settlement:**
+
+- `result._meta["x402/payment-response"]` = the `SettlementResponse` object (x402-standard).
+
+**Large signatures (Hedera and similar):** `PAYMENT-SIGNATURE` headers carrying JWS payloads can exceed ~8KB, beyond common proxy limits (`LimitRequestFieldSize`, ngrok, managed LBs). Merchants MUST accept the payment also as structured JSON in the request body, not only in the header: `payment.payment_signature` / `payment.payment_signature_data` inside the UCP checkout body (fields the UCP payment object tolerates via its open schema), or `params._meta["x402/payment"]` on MCP. Body/`_meta` payment is first-class, not a fallback hack: a complete payment flow MUST be possible without putting the signature in an HTTP header.
 
 A2A parity follows the same rule via x402's A2A transport.
 

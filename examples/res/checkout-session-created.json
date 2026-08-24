@@ -1,10 +1,10 @@
 {
   "ucp": {
-    "version": "2026-01-11",
+    "version": "2026-04-08",
     "capabilities": {
       "dev.ucp.shopping.checkout": [
         {
-          "version": "1.0"
+          "version": "2026-04-08"
         }
       ]
     },

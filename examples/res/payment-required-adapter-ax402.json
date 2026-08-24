@@ -1,0 +1,51 @@
+{
+  "x402Version": 2,
+  "error": "X402_PAYMENT_REQUIRED",
+  "resource": {
+    "url": "https://gateway.ax402.example/v1/pay/cm9yZGVyLTEyMw",
+    "description": "Order for checkout session chk_123",
+    "mimeType": "application/json"
+  },
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "eip155:8453",
+      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+      "amount": "135500000",
+      "maxTimeoutSeconds": 600,
+      "extra": {
+        "name": "USDC",
+        "version": "2"
+      }
+    }
+  ],
+  "extensions": {
+    "offer-receipt": {
+      "info": {
+        "offers": [
+          {
+            "format": "eip712",
+            "acceptIndex": 0,
+            "payload": {
+              "version": 1,
+              "resourceUrl": "https://gateway.ax402.example/v1/pay/cm9yZGVyLTEyMw",
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "amount": "135500000",
+              "validUntil": 1786233600
+            },
+            "signature": "0x... merchant EIP-712 signature over the offer payload"
+          }
+        ]
+      }
+    },
+    "payment-identifier": {
+      "info": {
+        "required": false
+      }
+    }
+  }
+}
