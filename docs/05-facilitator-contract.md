@@ -17,7 +17,7 @@ To serve a merchant exposing the `org.x402` handler, a facilitator MUST:
 3. **Honor the payment-identifier as idempotency key.** Same identifier + same signature = one settlement, ever. Duplicate submissions return the original settlement result (same tx hash), not an error and not a second transfer.
 4. **Return the signed receipt** (offer-receipt extension) in the settlement response, signed by the `payTo` key (or the merchant's designated signer).
 5. **Accept the quote window.** A challenge issued with `validUntil` must remain verifiable until that timestamp; verification after expiry MUST fail with a recoverable error, never a silent settle.
-6. **Expose settlement state** to the merchant (webhook or poll) so the merchant can implement the B5 state machine: in-flight, settled, failed-with-reason.
+6. **Expose settlement state** to the merchant (webhook or poll) so the merchant can implement the B5 state machine: in-flight, settled, failed-with-reason. In the adapter era this is not optional plumbing: after the agent pays `resource.url` directly, complete is **reconcile** — the merchant polls settlement state (or consumes the upstream fulfill) to decide `completed` vs `complete_in_progress`.
 
 RECOMMENDED:
 

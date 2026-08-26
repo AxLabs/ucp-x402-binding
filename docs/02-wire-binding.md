@@ -6,7 +6,10 @@ Status: pre-draft. Wire formats below are verified against UCP `docs/specificati
 
 UCP's checkout flow ends with `POST /checkout-sessions/{id}/complete`. That is the natural seam for x402: the merchant has a final total, the agent has a session, and UCP already reserves a `payment_required` condition at submission.
 
-Binding: **when an agent POSTs `complete` without a valid payment, the merchant responds `402` with the x402 v2 challenge. When the agent retries `complete` carrying the payment signature, settlement and completion happen together.**
+Binding: **when an agent POSTs `complete` without a valid payment, the merchant responds `402` with the x402 v2 challenge.** What happens next depends on the era (see §3.1):
+
+- **Ideal:** the agent retries `complete` carrying the payment signature; settlement and completion happen together at the shop.
+- **Adapter:** if the signed `resource.url` differs from the `complete` URL, the agent pays `resource.url` directly with standard x402, then POSTs `complete` again so the merchant can reconcile settlement and attach the order.
 
 ```
 Agent                                     Merchant (UCP server)
@@ -125,17 +128,24 @@ PAYMENT-REQUIRED: <base64 PaymentRequired JSON>
 
 Key points:
 
-- `resource.url` **MUST be the UCP checkout `complete` URL** (the resource the agent is paying for). The agent retries **that** URL with `PAYMENT-SIGNATURE`. Agents MUST NOT treat any facilitator/gateway URL appearing inside signed payloads as the retry URL.
+- **Ideal (end state):** `resource.url` is the UCP checkout `complete` URL, and the agent retries **that** URL with `PAYMENT-SIGNATURE`. During the adapter period the signed `resourceUrl` MAY differ (§3.1); the derivation rule there tells the agent what to do in both cases.
 
 ### 3.1 Adapter period (time-boxed, normative)
 
 The ideal above assumes the facilitator can verify payments whose signed `resource` is the shop complete URL. Not every facilitator can today. This subsection documents the transition, so agents behave correctly in both eras and merchants know when the adapter ends.
 
-1. **HTTP 402 location (stable, both eras):** the 402 challenge is always issued on the shop `POST …/checkout-sessions/{id}/complete`. The agent retries **that** URL. The agent MUST NOT treat the MCP JSON-RPC endpoint as the x402 resource.
-2. **Signed `resource` (ideal, end state):** the signed `resourceUrl` inside the offer MUST be the same complete URL. This is the binding's end state and becomes strictly REQUIRED once facilitators can verify shop-bound payments.
-3. **Signed `resource` (adapter, current practice):** during the adapter period, the signed `resourceUrl` inside `PAYMENT-REQUIRED` MAY be the facilitator/gateway URL, because the facilitator's verify pipeline binds to the gateway resource. UCP JSON bodies (discovery, catalog, session, complete responses) MUST NOT expose gateway hosts: the leak is confined to the signed challenge (REST header and/or its MCP mirror). Non-UCP direct-to-facilitator flows are unaffected.
-4. **Agent rule (both eras):** pay the shop complete URL. Do not POST `payment_required.resource.url` unless you are talking to the facilitator directly outside UCP.
-5. **Exit criterion:** the adapter clause ends for a facilitator when it can `/verify` and `/settle` a payment whose `resource` is the shop complete URL. The binding itself does not sunset; merchants SHOULD migrate as their facilitator qualifies.
+1. **402 location (both eras):** the 402 challenge is always issued on the shop `POST …/checkout-sessions/{id}/complete`. The agent MUST NOT treat the MCP JSON-RPC endpoint as the x402 resource.
+2. **Ideal `resource` (end state):** the signed `resourceUrl` inside the offer is that complete URL. The agent retries **complete** with the signature (header or body). The merchant (via its facilitator, merchant-side) verifies and settles.
+3. **Adapter `resource`:** during the adapter period, the signed `resourceUrl` inside `PAYMENT-REQUIRED` MAY be the facilitator/gateway URL, because the facilitator's verify pipeline binds to the gateway resource. UCP JSON bodies (discovery, catalog, session, complete responses) MUST NOT expose gateway hosts: the leak is confined to the signed challenge (REST header and/or its MCP mirror). Non-UCP direct-to-facilitator flows are unaffected.
+4. **Derivation rule (this is the key rule, both eras):** compare the signed `resource.url` with the complete URL the agent just POSTed.
+   - **Equal:** retry that complete URL with `PAYMENT-SIGNATURE` (header or body). The merchant verifies and settles.
+   - **Different:** the agent MUST (a) perform standard x402 v2 against `resource.url` — pay an entry from that challenge's `accepts[]`, using the HTTP method the challenge specifies (see below); then (b) `POST` shop `complete` again (empty body or same instrument selection) so the merchant can reconcile settlement and mark the session `completed`. The agent MUST NOT treat shop `complete` as the x402 resource for that signature.
+   - **Method:** use the method the challenge itself indicates — `extensions.bazaar.info.input.method` when the gateway advertises the bazaar extension (GET for current Ax402 per-token endpoints; do not assume POST), otherwise the method that received the 402.
+5. **No impersonation (merchant rule, both eras):** the merchant MUST NOT act as an x402 client against `resource.url` on the buyer's behalf — no server-side replay of the agent's `PAYMENT-SIGNATURE` to the gateway. The shop's copy of complete, after the agent has paid, is **reconcile**: poll settlement state / consume the upstream fulfill. A merchant that proxies buyer signatures is a confused deputy and can mark orders paid with no settlement (this failure mode is documented from a real incident).
+6. **Forward compatibility:** if an adapter-era agent still sends `PAYMENT-SIGNATURE` on `complete`, the merchant MUST NOT replay it to `resource.url`; it treats the call as a reconcile request (poll settlement, attach the order if paid). This keeps older x402-native agents from being weaponized through the merchant.
+7. **Exit criterion:** the adapter clause ends for a facilitator when it can `/verify` and `/settle` a payment whose `resource` is the shop complete URL. The binding itself does not sunset; merchants SHOULD migrate as their facilitator qualifies.
+
+**Instructing the agent (UCP-native surface).** The challenge is the instruction: `resource.url` is *where* to pay, `accepts[]` is *what*, `bazaar.input.method` is *how*, and the merchant-signed offer is the shop's sanction that payment at that URL settles this order. Additionally, when the 402 response carries a UCP JSON body, the merchant SHOULD include a `payment_required` message (a standard UCP error code) whose `content` tells the agent what to do: pay `resource.url` directly, then re-call complete. This gives UCP-native agents an explicit, in-protocol instruction without inventing new `_meta` machinery and without exposing the gateway in any persistent UCP surface.
 
 Containment rules (Section 2) are unaffected: an `accepts[]` entry for a network/asset the resource cannot settle is forbidden in both eras.
 - Each `accepts[]` entry carries `amount` = the session's final total converted to that asset, in base units. Fiat total 135.50 USD -> `135500000` (USDC, 6 decimals). See `03-amount-semantics.md`.
@@ -227,9 +237,10 @@ PAYMENT-RESPONSE: <base64 SettlementResponse JSON>
 4. If the buyer wants a specific asset, `complete` with that instrument selected (`network` + `asset`, or its `id`).
 5. Otherwise `complete` with no preference: the merchant challenges a default asset.
 6. Pay an entry from **this** challenge's `accepts[]` only. To switch assets, re-`complete` with a different instrument selection (a new challenge is issued); do not mix assets across challenges.
-7. Retry the **checkout complete URL** with `PAYMENT-SIGNATURE` (plus the same instrument selection).
+7. Apply the derivation rule (§3.1.4): if the challenge's `resource.url` equals the complete URL, retry complete with `PAYMENT-SIGNATURE`. If it differs (adapter), pay `resource.url` directly with standard x402 (method per the challenge), then `POST` complete again (empty or same selection) to reconcile and receive `completed` / `complete_in_progress`.
+8. On `complete_in_progress`, poll GET the session until terminal (§04).
 
-Skipping steps 3-6 against any multi-asset merchant produces wrong-asset payments; the containment rules exist to prevent exactly that.
+Skipping steps 3-6 against any multi-asset merchant produces wrong-asset payments; the containment rules exist to prevent exactly that. Skipping step 7's second complete leaves the order unattached (merchant cannot see the settlement).
 
 ## 6. MCP transport parity (B3b)
 
@@ -251,7 +262,9 @@ UCP also runs over MCP (tools/call with `create_cart`, `complete_checkout`). x40
 
 - `result._meta["x402/payment-response"]` = the `SettlementResponse` object (x402-standard).
 
-**Large signatures (Hedera and similar):** `PAYMENT-SIGNATURE` headers carrying JWS payloads can exceed ~8KB, beyond common proxy limits (`LimitRequestFieldSize`, ngrok, managed LBs). Merchants MUST accept the payment also as structured JSON in the request body, not only in the header: `payment.payment_signature` / `payment.payment_signature_data` inside the UCP checkout body (fields the UCP payment object tolerates via its open schema), or `params._meta["x402/payment"]` on MCP. Body/`_meta` payment is first-class, not a fallback hack: a complete payment flow MUST be possible without putting the signature in an HTTP header.
+**Adapter period:** the MCP endpoint is never the x402 resource. When the challenge's `resource.url` differs from the shop complete, the agent pays `resource.url` over **HTTP** (standard x402 v2, method per the challenge), then calls `complete_checkout` again (no signature required on the tool call; the merchant reconciles settlement). `_meta["x402/payment"]` on `complete_checkout` remains the ideal-era retry vehicle only.
+
+**Large signatures (Hedera and similar):** `PAYMENT-SIGNATURE` headers carrying JWS payloads can exceed ~8KB, beyond common proxy limits (`LimitRequestFieldSize`, ngrok, managed LBs). Merchants MUST accept the payment also as structured JSON in the request body, not only in the header: `payment.payment_signature` / `payment.payment_signature_data` inside the UCP checkout body (fields the UCP payment object tolerates via its open schema), or `params._meta["x402/payment"]` on MCP. In the adapter era the signature goes to the gateway, not the shop, which structurally avoids the shop's header limits. Body/`_meta` payment is first-class, not a fallback hack: a complete payment flow MUST be possible without putting the signature in an HTTP header.
 
 A2A parity follows the same rule via x402's A2A transport.
 

@@ -13,7 +13,7 @@ There is no neutral way for a UCP merchant to say "I accept agent-wallet stablec
 This repo defines the missing layer:
 
 1. **`org.x402` handler spec** - what a merchant advertises in `/.well-known/ucp` when it accepts x402, and what the buying agent needs to select a payment method. Deliberately free of any facilitator detail.
-2. **Wire binding** - how the UCP checkout flow maps onto x402 v2 HTTP (and MCP/A2A transports), with the 402 challenge at `checkout-sessions/{id}/complete`, price lock via the offer-receipt extension, and session-bound idempotency via the payment-identifier extension.
+2. **Wire binding** - how the UCP checkout flow maps onto x402 v2 HTTP (and MCP/A2A transports), with the 402 challenge at `checkout-sessions/{id}/complete`, price lock via the offer-receipt extension, and session-bound idempotency via the payment-identifier extension. Adapter-period rule (§3.1.4): when the signed `resource.url` differs from the complete URL, the agent pays it directly with standard x402 and re-calls complete to reconcile; merchants never proxy buyer signatures.
 3. **Prior art** - what exists today, verified from source, so we don't re-research it.
 
 ## Design rules (fixed)

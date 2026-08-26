@@ -30,7 +30,7 @@ Plan: ship v1 of the binding with the receipt as-is (privacy-minimal is a featur
 Agents SHOULD verify, in order:
 
 1. Receipt signature is by the `payTo` key from the challenge they answered.
-2. `resourceUrl` equals the session they paid.
+2. `resourceUrl` equals the resource that was actually paid: in the ideal era the session's complete URL; in the adapter era the challenge's `resource.url` (the gateway URL). The UCP order binding comes from the session id carried by the reconcile `complete` call, not from the receipt's `resourceUrl`.
 3. `payer` equals their own address.
 4. `transaction` resolves on the advertised network to a transfer of the offered amount to `payTo`.
 5. `issuedAt` is sane (not before the offer, not in the future).

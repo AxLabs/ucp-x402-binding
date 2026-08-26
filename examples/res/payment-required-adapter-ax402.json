@@ -46,6 +46,19 @@
       "info": {
         "required": false
       }
+    },
+    "bazaar": {
+      "info": {
+        "name": "Ax402 per-token pay endpoint",
+        "input": {
+          "type": "http",
+          "method": "GET",
+          "description": "Submit the x402 payment to this resource with this method"
+        },
+        "output": {
+          "type": "application/json"
+        }
+      }
     }
   }
 }
