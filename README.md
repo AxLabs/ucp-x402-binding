@@ -23,6 +23,18 @@ This repo defines the missing layer:
 3. **Scope is Layers 1-3**: discovery, commerce flow, settlement. Layer 4 (auth mandates, refunds, governance, conformance) is deferred until the core lands.
 4. **Every wire format in this repo is verified against the actual specs** (UCP `docs/specification/*.md`, x402 `specs/`), not blog summaries.
 
+## Validation
+
+All schemas and examples are validated with the official UCP validator, [`ucp-schema`](https://github.com/Universal-Commerce-Protocol/ucp-schema) (Apache-2.0, same org as the spec):
+
+```shell
+cargo install ucp-schema
+git clone --depth 1 --branch v2026-08-25 https://github.com/Universal-Commerce-Protocol/ucp /tmp/ucp-spec
+./scripts/validate.sh /tmp/ucp-spec
+```
+
+`scripts/validate.sh` lints the binding schemas, validates the self-describing checkout responses through the compose/resolve pipeline, checks error message bodies against `message_error`, and validates the `org.x402.payment` discovery entry against the official `payment_handler` business schema. Raw x402 `PaymentRequired` bodies are out of UCP-schema scope and get JSON sanity checks only. The script is the source of truth for conformance: run it before every commit.
+
 ## Repository layout
 
 ```
