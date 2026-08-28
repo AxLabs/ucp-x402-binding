@@ -36,7 +36,7 @@ Content-Type: application/json
 ```
 
 Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`. `payment.instruments[]` is the session offer: two x402 rows (Base USDC `selected: true`, Neo X USDC `selected: false`). The `payment` object is optional at creation per the UCP checkout spec; when present on a ready session it is the session offer.
-> The session response may also carry the optional `actions` map from wire binding 3.2, pointing the agent at the x402 challenge for payment instructions.
+> The session response may also carry the optional `actions` map from wire binding 3.2, keyed by Action type `org.x402.payment.challenge`: the merchant's advisory pointer to the next step. `config.instructions` is text: "Payment required. POST this session's complete URL to receive the x402 v2 challenge; the signed challenge carries the payment resource, accepted assets, and HTTP method. Pay the resource it names, then POST complete again." An agent that recognizes it reads the text and proceeds to §3; an agent that ignores it proceeds to §3 anyway — the Action is advisory only, and payment succeeds without processing it. The Action carries no payment data: the signed challenge remains the sole source of payment coordinates (no-leak rule, §3.1.2).
 
 ## 3. Complete without payment: the 402
 

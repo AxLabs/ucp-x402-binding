@@ -69,7 +69,21 @@ UCP field names are snake_case throughout (`payment_handlers`, `available_instru
 
 See the JSON Schema in this repo. It validates the four UCP base fields plus the `x402` object. The schema is deliberately minimal: anything the buying agent does not need to select a payment method is out of scope.
 
-## 4. Open questions
+## 4. Declared Action type: `org.x402.payment.challenge`
+
+Per UCP 2026-08-25, an extension declares each Action type it contributes. This binding (the `org.x402.payment` handler extension) declares exactly one:
+
+- **Key:** `org.x402.payment.challenge` (reverse-domain Action type under this binding's namespace; passes the UCP `reverse_domain_name` pattern).
+- **Where it appears:** Checkout responses while payment is pending. Omitted in terminal states (`completed`, `expired`, `cancelled`).
+- **`config` shape:** a single field, `instructions` (string, required). Text only. It tells the agent what to do next: fetch the 402 challenge from the session's complete URL and follow it.
+- **Processing model:** advisory. A Platform that recognizes the type reads `instructions` and proceeds to the complete call. A Platform that does not recognize it MUST ignore it; payment succeeds without processing the Action (fallback = the bare 402 challenge, which is authoritative).
+- **Trust:** the Action is merchant-asserted and carries **no payment data**. It never contains gateway URLs, addresses, amounts, or credentials. The signed x402 challenge remains the sole source of payment coordinates (no-leak rule, wire binding §3.1.2). Agents MUST NOT treat `instructions` as authoritative payment data.
+- **Outcome:** the Action clears when the session reaches a terminal state; merchants SHOULD stop emitting it once the 402 has been fetched or the session is paid.
+- **Ordering:** a single type, at most one outstanding instance in practice; array order has no processing semantics.
+
+A merchant implementing this handler MAY emit the Action; nothing requires it, and its absence MUST NOT affect payment.
+
+## 5. Open questions
 
 1. ~~Handler id: `org.x402.crypto` vs `org.x402.payments` vs plain `org.x402`.~~ **RESOLVED (2026-08-20)**: `org.x402.payment`. Avoids the "crypto" connotation; reads as the payment rail handler in the x402 Foundation namespace.
 2. Should `assets` entries carry a `verified` flag (issuer allow-list reference)? The dilemma: on-chain anyone can deploy a USDC-named token, so an agent trusting the handler's `symbol: "USDC"` alone could pay a worthless lookalike. Options: (a) do nothing and let agents do their own diligence, (b) require the handler to point at an issuer allow-list (a named, signed or curated list of legitimate issuer addresses, e.g. Circle's official USDC addresses), or (c) put a free-form `verified` boolean per asset and let the trust question be handled entirely merchant-side. The real question is whose claim the flag represents: the merchant's, the facilitator's, or a third-party list's, and who verifies the verifier. Deferred to working-group discussion.
