@@ -48,9 +48,9 @@ rm -f "$tmp"
 
 echo
 echo "== raw x402 PaymentRequired bodies (out of UCP-schema scope; JSON sanity only) =="
-for f in "$REPO"/examples/res/payment-required.json \
-         "$REPO"/examples/res/payment-required-adapter-ax402.json \
-         "$REPO"/examples/res/payment-required-neox.json; do
+for f in "$REPO"/examples/res/payment-required-same-url.json \
+         "$REPO"/examples/res/payment-required-external-url.json \
+         "$REPO"/examples/res/payment-required-same-url-neox.json; do
   python3 -m json.tool "$f" >/dev/null && echo "  $(basename "$f"): JSON OK" || fail=1
 done
 
