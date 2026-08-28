@@ -154,6 +154,34 @@ Containment rules (Section 2) are unaffected: an `accepts[]` entry for a network
 - The **payment-identifier** extension is client-supplied idempotency: the server advertises `required` (default `false`); when used, the **agent** generates the id (UUID-v4-with-prefix recommended) and echoes it in `PaymentPayload.extensions`. The UCP session id is a natural id source. This gives duplicate-submission protection at both resource server and facilitator (B4).
 - `challenge ⊆ session offer`: every `accepts[]` entry MUST also appear (same `network` + `asset`) in the session's `payment.instruments[]`.
 
+### 3.2 UCP 2026-08-25 alignment (Actions, tolerated fields, idempotency)
+
+**Action type `org.x402.payment.challenge` (optional).** UCP 2026-08-25 adds an `actions` map to Checkout (and Cart/Catalog) responses, keyed by reverse-domain Action type. A merchant using this binding MAY attach an outstanding Action to a checkout while payment is pending:
+
+```json
+"actions": {
+  "org.x402.payment.challenge": [
+    {
+      "id": "act_1",
+      "config": {
+        "instructions": "Payment required. POST this session's complete URL to receive the x402 v2 challenge; the signed challenge carries the payment resource, accepted assets, and HTTP method. Pay the resource it names, then POST complete again."
+      }
+    }
+  ]
+}
+```
+
+Normative rules:
+
+- The Action is **advisory**: agents that do not recognize the type MUST proceed on the 402 challenge alone, and merchants MUST NOT require Action processing for payment to succeed.
+- `config.instructions` (string, REQUIRED when the Action is present) is the only defined field. It tells the agent what to do next and where the authoritative payment details live: the signed x402 challenge, never the details themselves.
+- The no-leak rule (§3.1) applies in full: `config` MUST NOT carry gateway URLs, facilitator URLs, addresses, amounts, or credentials. The signed 402 challenge remains the sole carrier of payment coordinates.
+- The Action MUST be omitted once the session reaches `completed` or another terminal state.
+
+**Tolerated response fields.** UCP 2026-08-25 adds `actions` and `policies` to checkout/cart/catalog responses. Agents implementing this binding MUST tolerate both and MAY ignore both in v1; neither changes the flow in §§1 to 4.
+
+**Idempotency.** Under UCP 2026-08-25, each `POST .../complete` is a distinct state-modifying operation: the initial attempt and the post-payment reconcile retry MUST use fresh `Idempotency-Key` header values (REST). Over MCP, `complete_checkout` requires `meta["idempotency-key"]`; agents MUST supply a new key for the reconcile call.
+
 ## 4. The payment retry
 
 The retry carries both the UCP payment selection and the x402 signature. The UCP body selects the instrument; the header carries the x402 payment:

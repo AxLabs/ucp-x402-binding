@@ -33,3 +33,8 @@ Precedent: ACP's SEP process shows the pattern that works: an external company (
 - **Namespace squatting:** if someone else registers a neutral-sounding x402 namespace in UCP before us, we fragment the space. This is the urgency argument: the ACP SEP and fd.xyz's head start mean the neutral spec should land within roughly a quarter.
 - **Foundation disinterest:** if the x402 Foundation does not want namespace governance, fallback is a dedicated neutral org (e.g., `x402.org` style). Second choice, more setup cost.
 - **UCP council gatekeeping:** the Shopping Tech Council is dominated by Web2 incumbents (Google, Shopify, Stripe). The pitch that lands: UCP merchants get a new payment rail with zero platform fees, agents get a payment method that works everywhere, no council member loses anything. Frame it as adoption-positive, not crypto-evangelism.
+
+
+## Authority binding makes hosting urgent (UCP 2026-08-25)
+
+UCP 2026-08-25 makes namespace authority binding normative: platforms mechanically verify the payment handler `schema` URL host against the handler name and reject non-conforming handlers during negotiation. Hosting the `org.x402.payment` schema under `x402.org` is therefore a hard deployment requirement for conformant platforms, not only a governance nicety. The binding's discovery examples already point at the canonical location, `https://x402.org/schemas/ucp-payment-handler.json`.

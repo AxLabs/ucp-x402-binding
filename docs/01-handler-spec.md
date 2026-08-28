@@ -15,7 +15,7 @@ UCP discovery is `GET /.well-known/ucp` returning a profile. The relevant sectio
           "id": "org.x402.payment",
           "version": "2026-08-20",
           "spec": "https://github.com/AxLabs/ucp-x402-binding",
-          "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json"
+          "schema": "https://x402.org/schemas/ucp-payment-handler.json"
         }
       ]
     }
@@ -23,7 +23,7 @@ UCP discovery is `GET /.well-known/ucp` returning a profile. The relevant sectio
 }
 ```
 
-Per UCP 2026-04-08, `payment_handlers` is a **map of arrays**: each key holds an array of handler entries. The four base fields (`id`, `version`, `spec`, `schema`) are exactly what UCP defines. We add one optional UCP-legal extension object, `x402`, carrying what a buying agent needs to decide whether it can pay here. Nothing else.
+Per UCP 2026-08-25, `payment_handlers` is a **map of arrays**: each key holds an array of handler entries. The four base fields (`id`, `version`, `spec`, `schema`) are exactly what UCP defines. We add one optional UCP-legal extension object, `x402`, carrying what a buying agent needs to decide whether it can pay here. Nothing else.
 
 ## 2. Handler entry fields
 
@@ -41,6 +41,11 @@ Per UCP 2026-04-08, `payment_handlers` is a **map of arrays**: each key holds an
 | `x402.network_schemas` | no | object (namespace -> schema URL) | Per-network asset schema registry. Maps each CAIP-2 namespace present in the handler to the JSON Schema that defines its asset identifier shape. Reference schemas ship in this repo under `schema/networks/`; chain communities can author and host their own. Keeps the core schema chain-agnostic and moves asset-shape governance to the chains themselves |
 
 ### Naming convention
+
+**Namespace authority binding (UCP 2026-08-25).** Platforms verify that a business controls the reverse-DNS namespace of a payment handler by matching the handler `schema` URL host against the handler name. For `org.x402.payment`, the schema must be hosted at `x402.org` or a label-aligned subdomain (for example `payment.x402.org`). The canonical schema location is `https://x402.org/schemas/ucp-payment-handler.json`. Until the x402 Foundation hosts it there, deployments that point the `schema` field at this repository will fail authority verification on conformant platforms. The discovery examples in this repo show the canonical target.
+
+**`map_order` (UCP 2026-08-25).** A business may publish a preferred ordering for registry maps such as `payment_handlers` via `map_order`. A merchant MAY use it to signal handler preference; agents MUST NOT rely on it for correctness.
+
 
 UCP field names are snake_case throughout (`payment_handlers`, `available_instruments`, `handler_id`, `line_items`). Every field this binding defines follows the same convention: `max_amount`, `quote_window`, `network_schemas`. The one deliberate exception: camelCase appears **inside verbatim x402 wire payloads** (`PaymentRequired` with `maxAmountRequired`, `payTo`, `validUntil`, signed offers and receipts). Those are x402 objects quoted as-is across the wire, not UCP fields, and re-casing them would break x402 signature payloads.
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
+  "$id": "https://x402.org/schemas/ucp-payment-handler.json",
   "title": "org.x402 UCP Payment Handler Entry",
   "description": "Vendor-neutral x402 payment handler entry for UCP discovery. Facilitator detail is deliberately absent: the facilitator is merchant-side configuration. Network identifiers are CAIP-2 chain ids (namespace:reference). Asset identifiers are chain-specific: their shape is governed by per-network schemas (see x402.network_schemas), not by this core schema. Each CAIP-2 namespace community maintains its own versioned asset schema; validators apply the schema registered for the namespace of each asset and fall back to a lenient default for unregistered namespaces. Field naming follows UCP's snake_case convention; camelCase is reserved for verbatim x402 wire payloads (PaymentRequired, signed offers, receipts) which are quoted as-is.",
   "type": "object",

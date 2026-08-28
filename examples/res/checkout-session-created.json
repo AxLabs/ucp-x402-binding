@@ -1,10 +1,10 @@
 {
   "ucp": {
-    "version": "2026-04-08",
+    "version": "2026-08-25",
     "capabilities": {
       "dev.ucp.shopping.checkout": [
         {
-          "version": "2026-04-08"
+          "version": "2026-08-25"
         }
       ]
     },
@@ -88,6 +88,16 @@
         "selected": false,
         "network": "eip155:47763",
         "asset": "0x4200000000000000000000000000000000000023"
+      }
+    ]
+  },
+  "actions": {
+    "org.x402.payment.challenge": [
+      {
+        "id": "act_1",
+        "config": {
+          "instructions": "Payment required. POST this session's complete URL to receive the x402 v2 challenge; the signed challenge carries the payment resource, accepted assets, and HTTP method. Pay the resource it names, then POST complete again."
+        }
       }
     ]
   }

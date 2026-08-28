@@ -36,6 +36,7 @@ Content-Type: application/json
 ```
 
 Response: [`res/checkout-session-created.json`](res/checkout-session-created.json). Session `chk_123`, total `135.50 USD` (`totals[type=total].amount = 13550` minor units), status `ready_for_complete`. `payment.instruments[]` is the session offer: two x402 rows (Base USDC `selected: true`, Neo X USDC `selected: false`). The `payment` object is optional at creation per the UCP checkout spec; when present on a ready session it is the session offer.
+> The session response may also carry the optional `actions` map from wire binding 3.2, pointing the agent at the x402 challenge for payment instructions.
 
 ## 3. Complete without payment: the 402
 

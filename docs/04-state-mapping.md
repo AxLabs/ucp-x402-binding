@@ -10,9 +10,9 @@ x402 settlement lifecycle: challenge issued -> signature submitted -> facilitato
 
 The binding must map one onto the other without inventing new UCP states.
 
-## 2. Normative mapping (UCP 2026-04-08 status enum)
+## 2. Normative mapping (UCP 2026-08-25 status enum)
 
-UCP 2026-04-08 defines exactly six checkout statuses: `incomplete`, `requires_escalation`, `ready_for_complete`, `complete_in_progress`, `completed`, `canceled`. The binding maps x402 events onto them:
+UCP 2026-08-25 defines exactly six checkout statuses: `incomplete`, `requires_escalation`, `ready_for_complete`, `complete_in_progress`, `completed`, `canceled`. The binding maps x402 events onto them:
 
 | Event in the x402 flow | UCP session state | Notes |
 |---|---|---|
@@ -34,7 +34,7 @@ Rules:
 
 - A 402 or instrument switch is **never** a session status change. The session stays `ready_for_complete` throughout the challenge/selection loop.
 - `payment_failed` is a **message code** (in `messages[]`), paired with `ucp.status: "error"` in the envelope, while the session itself remains `ready_for_complete` (recoverable) or moves to `canceled` (terminal). It is not a session status.
-- `requires_escalation` is a **status** in UCP 2026-04-08. A message code alone is not a substitute. (Merchants that currently signal escalation via message while staying `incomplete` are non-conformant and should migrate; this binding follows the status enum.)
+- `requires_escalation` is a **status** in UCP 2026-08-25. A message code alone is not a substitute. (Merchants that currently signal escalation via message while staying `incomplete` are non-conformant and should migrate; this binding follows the status enum.)
 - Never mark `payment_failed`/`canceled` as terminal while a settlement may still land (see timeout policy).
 
 ## 3. Timeout vs pending policy
@@ -48,12 +48,12 @@ The dangerous window is "signature accepted, on-chain settlement not yet final".
 
 ## 4. UCP error envelope
 
-On payment failure, the merchant returns the standard UCP error shape (message field is `content`, per UCP 2026-04-08):
+On payment failure, the merchant returns the standard UCP error shape (message field is `content`, per UCP 2026-08-25):
 
 ```json
 {
   "ucp": {
-    "version": "2026-04-08",
+    "version": "2026-08-25",
     "status": "error"
   },
   "messages": [
@@ -72,5 +72,5 @@ On payment failure, the merchant returns the standard UCP error shape (message f
 ## 5. Open questions
 
 1. ~~Should a `payment_failed` event also fire a UCP Order webhook, or is the checkout-session surface sufficient?~~ **RESOLVED (2026-08-24)**: the checkout-session surface is sufficient for v1. Order webhooks follow the Order capability and fire only for placed orders (`completed`), not for payment events on a session still at `ready_for_complete`.
-2. ~~Is `complete_in_progress` legitimately observable by the agent via GET, or does the spec treat it as a server-internal transition?~~ **RESOLVED (2026-08-24)**: both are legal. Synchronous merchants MAY finish verify+settle inside the complete call and never expose `complete_in_progress`; async merchants MUST expose it via GET. Verified against UCP 2026-04-08: `complete_in_progress` is a first-class status in the enum ("Business is processing the Complete Checkout request").
+2. ~~Is `complete_in_progress` legitimately observable by the agent via GET, or does the spec treat it as a server-internal transition?~~ **RESOLVED (2026-08-24)**: both are legal. Synchronous merchants MAY finish verify+settle inside the complete call and never expose `complete_in_progress`; async merchants MUST expose it via GET. Verified against UCP 2026-08-25: `complete_in_progress` is a first-class status in the enum ("Business is processing the Complete Checkout request").
 3. Exact retry semantics when the agent signs a NEW offer after an expiry: new payment-identifier value (fresh session) vs same session id re-used with a new signature. Leaning: same session id, the identifier is session-scoped, the signature is per-offer.

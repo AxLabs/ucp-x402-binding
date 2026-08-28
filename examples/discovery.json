@@ -1,59 +1,59 @@
 {
   "ucp": {
-    "version": "2026-04-08",
+    "version": "2026-08-25",
     "services": {
       "dev.ucp.shopping": [
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/overview",
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/overview",
           "transport": "rest",
           "endpoint": "https://shop.example/ucp/v1",
-          "schema": "https://ucp.dev/2026-04-08/services/shopping/rest.openapi.json"
+          "schema": "https://ucp.dev/2026-08-25/services/shopping/rest.openapi.json"
         },
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/overview",
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/overview",
           "transport": "mcp",
           "endpoint": "https://shop.example/ucp/mcp",
-          "schema": "https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json"
+          "schema": "https://ucp.dev/2026-08-25/services/shopping/mcp.openrpc.json"
         }
       ]
     },
     "capabilities": {
       "dev.ucp.shopping.catalog.search": [
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/catalog-search",
-          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/catalog_search.json"
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/catalog-search",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/catalog_search.json"
         }
       ],
       "dev.ucp.shopping.cart": [
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/cart",
-          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/cart.json"
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/cart",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/cart.json"
         }
       ],
       "dev.ucp.shopping.checkout": [
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/checkout",
-          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/checkout.json"
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/checkout",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/checkout.json"
         }
       ],
       "dev.ucp.shopping.fulfillment": [
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/fulfillment",
-          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/fulfillment.json",
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/fulfillment",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/fulfillment.json",
           "extends": "dev.ucp.shopping.checkout"
         }
       ],
       "dev.ucp.shopping.order": [
         {
-          "version": "2026-04-08",
-          "spec": "https://ucp.dev/2026-04-08/specification/order",
-          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/order.json"
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/order",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/order.json"
         }
       ]
     },
@@ -63,7 +63,7 @@
           "id": "org.x402.payment",
           "version": "2026-08-20",
           "spec": "https://github.com/AxLabs/ucp-x402-binding",
-          "schema": "https://github.com/AxLabs/ucp-x402-binding/blob/main/schema/handler.schema.json",
+          "schema": "https://x402.org/schemas/ucp-payment-handler.json",
           "available_instruments": [
             {
               "type": "x402"

@@ -56,3 +56,7 @@ Apache License 2.0. Copyright 2026 AxLabs. See [LICENSE](LICENSE).
 ## Contributing
 
 Private while pre-draft. AxLabs internal only.
+
+## Changelog
+
+- **2026-08-28** - UCP 2026-08-25 alignment: all version strings and spec URLs bumped; handler `schema` URL moved to the canonical `x402.org` location per the new namespace authority binding rule; new optional Action type `org.x402.payment.challenge` (text-only agent instructions, no payment data, see wire binding 3.2); `actions`/`policies` documented as tolerated; complete-checkout idempotency rules (fresh key per attempt, MCP `meta["idempotency-key"]`).
