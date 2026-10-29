@@ -6,7 +6,7 @@ Status of this document: context, not normative. It records why the binding is s
 
 The Universal Commerce Protocol (UCP) is deliberately payment-rail agnostic: its `ucp.payment_handlers` extension point carries nothing but a namespaced handler entry (`id`, `version`, `spec`, `schema`). Google Pay and Shop Pay are the only real instances today. Meanwhile x402 has become the de-facto machine-to-machine payment primitive (HTTP 402 challenge + EIP-3009/Permit2 signatures + stablecoin settlement).
 
-There is no neutral way for a UCP merchant to say "I accept agent-wallet stablecoin payments via x402" and for a buying agent to pay without knowing which facilitator sits behind the merchant. The only production integration (fd.xyz Prism) is proprietary: handler `xyz.fd.prism_payment`, hardwired to the Prism gateway.
+There is no neutral way for a UCP merchant to say "I accept agent-wallet stablecoin payments via x402" and for a buying agent to pay without knowing which facilitator sits behind the merchant. The only production integration (fd.xyz Prism) is gateway-locked: the plugin code is open source and the docs are public, but the handler `xyz.fd.prism_payment` is vendor-namespaced and paired with fd.xyz's hosted Prism gateway; no neutral, provider-agnostic handler spec exists.
 
 This repo defines the missing layer:
 
@@ -17,13 +17,13 @@ This repo defines the missing layer:
 ## 2. Design principles (fixed)
 
 1. **The facilitator stays merchant-side and hidden from agents.** Discovery and checkout expose only what the buying agent needs: handler id, networks, assets, amount, `payTo`. Facilitator choice is merchant config, never advertised. The binding is facilitator-neutral.
-2. **Open posture beats proprietary handlers.** fd.xyz/Prism sitting behind the neutral `org.x402` handler is a stated goal, not a threat. AxLabs wins at the spec layer, not in a plugin race.
+2. **Open posture beats vendor-locked handlers.** fd.xyz/Prism sitting behind the neutral `org.x402` handler is a stated goal, not a threat. AxLabs wins at the spec layer, not in a plugin race.
 3. **Scope is Layers 1-3**: discovery, commerce flow, settlement. Layer 4 (auth mandates, refunds, governance, conformance) is deferred until the core lands.
 4. **Every wire format in this repo is verified against the actual specs** (UCP `docs/specification/*.md`, x402 `specs/`), not blog summaries.
 
 ## 3. Prior art (verified, with sources)
 
-Research complete as of 2026-08-20. Everything below was verified against primary sources (repo files, spec text, issue threads), not blog summaries. Re-verify before external use.
+Research complete as of 2026-08-20; fd.xyz rows re-verified 2026-10-29 (the org has since grown to 13 repos, incl. a Saleor plugin). Everything below was verified against primary sources (repo files, spec text, issue threads), not blog summaries. Re-verify before external use.
 
 ### 3.1 UCP: no x402 direction, by design
 
@@ -44,16 +44,17 @@ Organization: financedistrict-platform on GitHub, backed by 1st Digital (fd.xyz)
 
 | Fact | Detail | Source |
 |---|---|---|
-| Platforms | WooCommerce, Shopware 6.7, Medusa v2, PrestaShop plugins, MIT-licensed | github.com/financedistrict-platform |
+| Platforms | WooCommerce (GPL-2.0); Shopware 6.7, Medusa v2, PrestaShop, Saleor plugins (MIT); fd-prism-sdk (MIT); open settlement contracts (fd-prism-spectrum-evm, non-custodial EIP-3009) | github.com/financedistrict-platform |
 | Handler id | `xyz.fd.prism_payment`, advertised in `/.well-known/ucp` | plugin source |
 | Flow | session create -> plugin calls Prism `prepare_ucp_payment` (fiat minor units in, `accepts[]` out) -> agent submits x402 credential at complete -> plugin validates + settles via Prism gateway -> order meta gets tx hash | plugin source (PHP), Shopware handler README |
 | Facilitator isolation | Agent never sees facilitator URL. "Currency- & chain-agnostic: Prism does all token/chain/x402 math, the plugin only relays" | Shopware plugin README |
 | Order lifecycle | Order created pending at session time, so order number is available in payment descriptions pre-settlement. Idempotency keys on prepare | plugin source, commit history |
 | Testnet | Base Sepolia staging, real USDC contracts | repo config |
-| Activity | Active commits through Jul 2026, 82 tests in the WooCommerce package | GitHub commit history |
-| Limitation | Gateway-locked, proprietary namespace, no offer-and-receipt usage. Their "receipt" is order meta with a tx hash | plugin source |
+| Activity | Active commits through Oct 2026, 82 tests in the WooCommerce package | GitHub commit history |
+| Handler docs | Public developer hub documents the handler (`xyz.fd.prism_payment`), merchant endpoints, and gateway endpoints | developers.fd.xyz |
+| Limitation | Gateway-locked: vendor-namespaced handler paired with the hosted Prism gateway; open handler code, but no provider-agnostic handler spec and no offer-and-receipt usage. Their "receipt" is order meta with a tx hash | plugin source |
 
-Key architectural validation: their facilitator-isolation design (agent sees handler id, `accepts[]`, and a credential submission point only) matches our rule #1. We keep that shape and remove the lock-in.
+Key architectural validation: their facilitator-isolation design (agent sees handler id, `accepts[]`, and a credential submission point only) matches our rule #1. Their WooCommerce core already ships a payment-handler interface that any provider can implement (plus a dummy test handler), so moving behind a neutral namespace is incremental for them, not a rewrite. What is closed is the operated gateway service, not the code. We keep their shape and remove the lock-in.
 
 ### 3.3 ACP: live x402 proposal in the competing protocol
 
@@ -84,7 +85,7 @@ Key architectural validation: their facilitator-isolation design (agent sees han
 
 ### 3.6 The opening
 
-Nobody has shipped a vendor-neutral UCP x402 handler. fd.xyz built the proprietary version and proved the architecture. ACP has an open SEP doing the equivalent for their protocol. The neutral UCP handler spec is unclaimed, and it is the layer any Monetization Gateway can sit behind as one facilitator among several.
+Nobody has shipped a vendor-neutral UCP x402 handler. fd.xyz built the gateway-locked version and proved the architecture. ACP has an open SEP doing the equivalent for their protocol. The neutral UCP handler spec is unclaimed, and it is the layer any Monetization Gateway can sit behind as one facilitator among several.
 
 ## 4. Namespace governance: `org.x402` ownership
 

@@ -10,7 +10,7 @@ In this binding, the Monetization Gateway is merchant-side configuration. The ag
 
 ## 2. Neutrality
 
-The binding is gateway-neutral by rule. Any Monetization Gateway Provider (Ax402, Coinbase CDP, Prism, icpay, self-hosted open-source) can sit behind a merchant's `org.x402` handler, provided it implements the contract below. The agent never learns which one is there.
+The binding is gateway-neutral by rule. Any Monetization Gateway Provider (Coinbase CDP, Prism, icpay, self-hosted open-source) can sit behind a merchant's `org.x402` handler, provided it implements the contract below. The agent never learns which one is there.
 
 This is also the commercial thesis: a neutral spec expands the market for every provider, and each competes on economics and reliability, not lock-in.
 
