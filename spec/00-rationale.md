@@ -109,7 +109,7 @@ Precedent: ACP's SEP process shows the pattern that works: an external company (
 
 ### 4.4 Sequence
 
-1. AxLabs publishes the handler spec + reference implementation (this repo, public once stable).
+1. AxLabs publishes the handler spec + reference implementation (this repo, public).
 2. Socialize in the x402 Foundation Discovery WG (already active; the discovery work there is complementary: they define how x402 endpoints are found, we define how UCP merchants advertise x402).
 3. Foundation adopts namespace governance, spec moves to the Foundation repo or stays here under Foundation stewardship.
 4. UCP Shopping Tech Council submission: cross-post the handler spec as a UCP discussion item, citing the reference implementation.

@@ -1,6 +1,6 @@
 # State Mapping: UCP Checkout Session States vs x402 Settlement
 
-Status: pre-draft.
+Status: draft.
 
 ## 1. The two state machines
 

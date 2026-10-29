@@ -1,6 +1,6 @@
 # Payment Flows: UCP Checkout <-> x402 v2
 
-Status: pre-draft. Wire formats below are verified against UCP `docs/specification/*.md` and x402 `specs/transports-v2/http.md`, `specs/extensions/extension-offer-and-receipt.md`, `specs/extensions/payment_identifier.md` (see [00-rationale.md](00-rationale.md) for exact sources).
+Status: draft. Wire formats below are verified against UCP `docs/specification/*.md` and x402 `specs/transports-v2/http.md`, `specs/extensions/extension-offer-and-receipt.md`, `specs/extensions/payment_identifier.md` (see [00-rationale.md](00-rationale.md) for exact sources).
 
 ## 1. Where the 402 sits
 

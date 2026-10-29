@@ -1,6 +1,6 @@
 # Payment Handler Spec: `org.x402.payment`
 
-Status: pre-draft. Everything normative here is a proposal by AxLabs until adopted.
+Status: draft. Everything normative here is a proposal by AxLabs until adopted.
 
 ## 1. Position in UCP discovery
 

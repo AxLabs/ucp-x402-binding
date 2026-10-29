@@ -1,6 +1,6 @@
 # Monetization Gateway Provider Contract
 
-Status: pre-draft.
+Status: draft.
 
 ## 1. Terminology
 

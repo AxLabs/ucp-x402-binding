@@ -1,6 +1,6 @@
 # Amounts and Receipts
 
-Status: pre-draft.
+Status: draft.
 
 ## 1. Amount semantics: fiat totals to base units
 

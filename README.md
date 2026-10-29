@@ -2,7 +2,7 @@
 
 A vendor-neutral UCP payment-handler binding for x402.
 
-Status: **pre-draft, private**. Everything here is under active development by AxLabs and not yet submitted to the UCP Shopping Tech Council or the x402 Foundation.
+Status: **draft**, public. Everything here is under active development by AxLabs and not yet submitted to the UCP Shopping Tech Council or the x402 Foundation.
 
 ## Why
 
@@ -79,9 +79,10 @@ Apache License 2.0. Copyright 2026 AxLabs. See [LICENSE](LICENSE).
 
 ## Contributing
 
-Private while pre-draft. AxLabs internal only.
+Draft stage, public. AxLabs drives development; contributions and feedback welcome once the spec is socialized with the x402 Foundation and UCP councils.
 
 ## Changelog
 
+- **2026-10-29** - Status changed from "pre-draft, private" to **draft, public**. fd.xyz/Prism characterization corrected to "gateway-locked, vendor-namespaced" after source re-verification: their plugin code (GPL-2.0/MIT), SDK, settlement contracts, and developer docs are open; the hosted Prism Gateway is the closed piece. Prior-art table updated (WooCommerce license corrected, Saleor added, activity Oct 2026).
 - **2026-08-29** - Spec restructure: single spec tree under `spec/` with rationale-first organization; "Ideal/Adapter eras" renamed to the two permanent payment paths **Same-URL Payment** and **External-URL Payment** (flexible implementation options, not a transition); Ax402-specific references replaced by the neutral **Monetization Gateway / Monetization Gateway Provider** terminology; naming conventions codified (UCP snake_case fields, kebab-case headers, verbatim camelCase x402 envelopes); fixtures renamed to path-based names (`payment-required-same-url.json`, `payment-required-external-url.json`, `payment-required-same-url-neox.json`); WooCommerce handoff brief moved to `guides/woocommerce-plugin.md`; docs consolidated with no content loss (derivation rule stated once in `spec/02` and referenced everywhere).
 - **2026-08-28** - UCP 2026-08-25 alignment: all version strings and spec URLs bumped; handler `schema` URL moved to the canonical `x402.org` location per the new namespace authority binding rule; new optional Action type `org.x402.payment.challenge` (text-only agent instructions, no payment data); `actions`/`policies` documented as tolerated; complete-checkout idempotency rules (fresh key per attempt, MCP `meta["idempotency-key"]`). Adopted the official `ucp-schema` validator; fixed the conformance gaps it caught (capability entries now carry `schema`/`spec` URLs; version strings normalized to `YYYY-MM-DD`); `scripts/validate.sh` is the conformance suite.
